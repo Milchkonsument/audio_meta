@@ -5,19 +5,6 @@ AudioType _getType(Uint8List bytes) {
     return AudioType.unknown;
   }
 
-  // Check for OPUS (Ogg container with "OpusHead")
-  if (bytes.length > 8 &&
-      bytes[0] == 0x4F &&
-      bytes[1] == 0x67 &&
-      bytes[2] == 0x67 &&
-      bytes[3] == 0x53 &&
-      bytes[28] == 0x4F &&
-      bytes[29] == 0x70 &&
-      bytes[30] == 0x75 &&
-      bytes[31] == 0x73) {
-    return AudioType.opus;
-  }
-
   // Check for AAC (ADTS format, 0xFFF syncword)
   if (bytes.length > 2 && bytes[0] == 0xFF && (bytes[1] & 0xF0) == 0xF0) {
     return AudioType.aac;

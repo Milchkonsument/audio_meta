@@ -6,6 +6,5 @@ enum AudioType {
   ogg,
   flac,
   aac,
-  opus,
   unknown,
 }

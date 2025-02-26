@@ -10,6 +10,20 @@ part 'extractions/get_sample_rate.dart';
 part 'extractions/get_bit_rate.dart';
 part 'extractions/get_duration.dart';
 
+/// [AudioMeta] is a lightweight class that extracts audio metadata from audio data.
+///
+/// Currently supported audio types: mp3, wav, ogg, flac, aac.
+///
+/// Use [AudioMeta.fromFile], [AudioMeta.fromPath], or [AudioMeta.fromBytes] to create an instance.
+///
+/// Example:
+/// ```dart
+/// final meta = AudioMeta.fromFile(File('audio.mp3'));
+/// print(meta.type); // AudioType.mp3
+/// print(meta.sampleRate); // 44100
+/// print(meta.bitRate); // 128000
+/// print(meta.duration); // Duration(seconds: 180)
+/// ```
 final class AudioMeta {
   AudioMeta._(Uint8List bytes) {
     type = _getType(bytes);
@@ -18,9 +32,38 @@ final class AudioMeta {
     duration = _getDuration(bytes, type);
   }
 
+  /// Create an instance of [AudioMeta] from a [File].
+  ///
+  /// Throws a [FileSystemException] if the file does not exist.
+  ///
+  /// Example:
+  /// ```dart
+  /// final meta = AudioMeta.fromFile(File('audio.mp3'));
+  /// print(meta.type); // AudioType.mp3
+  /// ```
   factory AudioMeta.fromFile(File file) =>
       AudioMeta.fromBytes(file.readAsBytesSync());
+
+  /// Create an instance of [AudioMeta] from a file at the given [path].
+  ///
+  /// Throws a [FileSystemException] if the file does not exist.
+  ///
+  /// Example:
+  /// ```dart
+  /// final meta = AudioMeta.fromPath('audio.mp3');
+  /// print(meta.type); // AudioType.mp3
+  /// ```
   factory AudioMeta.fromPath(String path) => AudioMeta.fromFile(File(path));
+
+  /// Create an instance of [AudioMeta] from given [bytes].
+  ///
+  /// Example:
+  /// ```dart
+  /// final response = await http.get(Uri.parse('https://example.com/audio.mp3'));
+  /// final bytes = response.bodyBytes;
+  /// final meta = AudioMeta.fromBytes(bytes);
+  /// print(meta.type); // AudioType.mp3
+  /// ```
   factory AudioMeta.fromBytes(Uint8List bytes) => AudioMeta._(bytes);
 
   /// Audio type (format) of the input bytes

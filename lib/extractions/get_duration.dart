@@ -6,7 +6,6 @@ Duration _getDuration(Uint8List bytes, AudioType type) => switch (type) {
       AudioType.ogg => _getOggDuration(bytes),
       AudioType.flac => _getFlacDuration(bytes),
       AudioType.aac => _getAacDuration(bytes),
-      AudioType.opus => _getOpusDuration(bytes),
       _ => Duration.zero,
     };
 
@@ -92,13 +91,4 @@ Duration _getAacDuration(Uint8List bytes) {
 
   final durationBytes = bytes.sublist(offset + 8, offset + 12);
   return Duration(seconds: _bytesToIntILBE(durationBytes));
-}
-
-Duration _getOpusDuration(Uint8List bytes) {
-  final offset = bytes.indexOfSequence('OpusHead'.codeUnits);
-  if (offset == -1) return Duration.zero;
-
-  final preSkipBytes = bytes.sublist(offset + 10, offset + 12);
-  int preSkip = _bytesToIntILBE(preSkipBytes);
-  return Duration(milliseconds: preSkip);
 }

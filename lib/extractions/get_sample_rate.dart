@@ -6,7 +6,6 @@ int _getSampleRate(Uint8List bytes, AudioType type) => switch (type) {
       AudioType.ogg => _getOggSampleRate(bytes),
       AudioType.flac => _getFlacSampleRate(bytes),
       AudioType.aac => _getAacSampleRate(bytes),
-      AudioType.opus => _getOpusSampleRate(bytes),
       _ => 0,
     };
 
@@ -67,13 +66,4 @@ int _getAacSampleRate(Uint8List bytes) {
   }
 
   return 0;
-}
-
-// works
-int _getOpusSampleRate(Uint8List bytes) {
-  int offset = bytes.indexOfSequence([...'OpusHead'.codeUnits]);
-  if (offset == -1 || bytes.length < offset + 16) return 0;
-
-  final sampleRateBytes = bytes.sublist(offset + 12, offset + 16);
-  return _bytesToIntLE(sampleRateBytes);
 }
