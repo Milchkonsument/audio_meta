@@ -23,33 +23,36 @@ int _getMp3SampleRate(Uint8List bytes) {
   return 0;
 }
 
-// ! doesn't work
+// works
 int _getWavSampleRate(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([...'fmt '.codeUnits], 8);
-  if (offset == -1) return 0;
+  final offset = bytes.indexOfSequence([...'fmt '.codeUnits], 12);
 
-  final sampleRateBytes = bytes.sublist(offset + 4, offset + 8);
+  if (offset == -1 || bytes.length < offset + 16) return 0;
+
+  final sampleRateBytes = bytes.sublist(offset + 12, offset + 16);
   return _bytesToIntLE(sampleRateBytes);
 }
 
-// ! doesn't work
+// works
 int _getOggSampleRate(Uint8List bytes) {
-  if (bytes.length < 12) {
-    return 0;
-  }
+  final offset = bytes.indexOfSequence([0x01, ...'vorbis'.codeUnits]);
 
-  final sampleRateBytes = bytes.sublist(12, 16);
-  return _bytesToIntBE(sampleRateBytes);
+  if (offset == -1 || bytes.length < offset + 16) return 0;
+
+  final sampleRateBytes = bytes.sublist(offset + 12, offset + 16);
+  return _bytesToIntLE(sampleRateBytes);
 }
 
-// ! doesn't work
+// works
 int _getFlacSampleRate(Uint8List bytes) {
-  if (bytes.length < 22) {
-    return 0;
-  }
+  if (bytes.length < 20) return 0;
 
-  final sampleRateBytes = bytes.sublist(18, 22);
-  return _bytesToIntBE(sampleRateBytes);
+  final byte10 = bytes[18];
+  final byte11 = bytes[19];
+  final byte12 = bytes[20];
+
+  int sampleRate = ((byte10 << 12) | (byte11 << 4) | (byte12 >> 4));
+  return sampleRate;
 }
 
 // works
@@ -66,12 +69,11 @@ int _getAacSampleRate(Uint8List bytes) {
   return 0;
 }
 
-// ! doesn't work
+// works
 int _getOpusSampleRate(Uint8List bytes) {
-  if (bytes.length < 12) {
-    return 0;
-  }
+  int offset = bytes.indexOfSequence([...'OpusHead'.codeUnits]);
+  if (offset == -1 || bytes.length < offset + 16) return 0;
 
-  final sampleRateBytes = bytes.sublist(12, 16);
-  return _bytesToIntBE(sampleRateBytes);
+  final sampleRateBytes = bytes.sublist(offset + 12, offset + 16);
+  return _bytesToIntLE(sampleRateBytes);
 }

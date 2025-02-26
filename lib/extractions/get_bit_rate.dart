@@ -10,20 +10,50 @@ int _getBitRate(Uint8List bytes, AudioType type) => switch (type) {
       _ => 0,
     };
 
+// works
 int _getMp3BitRate(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([...'Xing'.codeUnits]);
-  if (offset == -1) return 0;
+  // Check for Xing header (VBR)
+  final xingOffset = bytes.indexOfSequence([...'Xing'.codeUnits]);
 
-  final bitRate = bytes.skip(offset + 12).take(4).toList();
-  return _bytesToIntILBE(bitRate) * 1000;
+  if (bytes[xingOffset + 4] == 0) {
+    // If no VBR bit rate is included, extract bitrate from MPEG frame (CBR)
+    return _getMp3CbrBitRate(bytes);
+  }
+
+  if (xingOffset != -1 && bytes.length >= xingOffset + 16) {
+    final bitRateBytes = bytes.sublist(xingOffset + 12, xingOffset + 16);
+    return _bytesToIntBE(bitRateBytes) * 1000; // Xing header bitrate (VBR)
+  }
+
+  // If no Xing header, extract bitrate from MPEG frame (CBR)
+  _getMp3CbrBitRate(bytes);
+
+  return 0;
 }
 
+int _getMp3CbrBitRate(Uint8List bytes) {
+  for (int i = 0; i < bytes.length - 3; i++) {
+    if (bytes[i] == 0xFF && (bytes[i + 1] & 0xE0) == 0xE0) {
+      int bitRateIndex = (bytes[i + 2] >> 4) & 0x0F;
+      int versionBit = (bytes[i + 1] >> 3) & 0x03;
+
+      return _mp3BitRatesByVersionBits[versionBit]?[bitRateIndex] ?? 0;
+    }
+  }
+
+  return 0;
+}
+
+// works
 int _getWavBitRate(Uint8List bytes) {
   final offset = bytes.indexOfSequence([...'fmt '.codeUnits]);
   if (offset == -1) return 0;
 
-  final bitRate = bytes.skip(offset + 24).take(4).toList();
-  return _bytesToIntILBE(bitRate) * 8;
+  if (bytes.length >= offset + 28) {
+    return _bytesToIntLE(bytes.sublist(offset + 16, offset + 20)) * 8;
+  }
+
+  return 0;
 }
 
 int _getOggBitRate(Uint8List bytes) {

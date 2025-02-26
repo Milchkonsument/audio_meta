@@ -23,12 +23,28 @@ final class AudioMeta {
   factory AudioMeta.fromPath(String path) => AudioMeta.fromFile(File(path));
   factory AudioMeta.fromBytes(Uint8List bytes) => AudioMeta._(bytes);
 
+  /// Audio type (format) of the input bytes
   late final AudioType type;
+
+  /// Audio sample rate in Hz
   late final int sampleRate;
+
+  /// Audio bit rate in bps
   late final int bitRate;
+
+  /// Audio duration
   late final Duration duration;
+
+  /// Audio bit rate in kbps
+  int get kBitRate => bitRate ~/ 1000;
+
+  /// Audio duration in seconds
+  double get durationInSeconds => duration.inMilliseconds / 1000;
+
+  /// Audio sample rate in kHz
+  double get sampleRateInKHz => sampleRate / 1000;
 
   @override
   String toString() =>
-      'AudioMeta(${type.name}, ${sampleRate}Hz, ${bitRate}kbps, ${duration.inSeconds}s)';
+      'AudioMeta(${type.name}, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, ${durationInSeconds.toStringAsFixed(2)}s)';
 }
