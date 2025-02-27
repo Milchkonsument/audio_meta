@@ -9,7 +9,7 @@ int _getBitRate(Uint8List bytes, AudioType type) => switch (type) {
       _ => 0,
     };
 
-// works
+// ? works partially
 int _getMp3BitRate(Uint8List bytes) {
   // Check for Xing header (VBR)
   final xingOffset = bytes.indexOfSequence([...'Xing'.codeUnits]);
@@ -19,6 +19,7 @@ int _getMp3BitRate(Uint8List bytes) {
     return _getMp3CbrBitRate(bytes);
   }
 
+  // ! this part is probably wrong / untested
   if (xingOffset != -1 && bytes.length >= xingOffset + 16) {
     final bitRateBytes = bytes.sublist(xingOffset + 12, xingOffset + 16);
     return _bytesToIntBE(bitRateBytes) * 1000; // Xing header bitrate (VBR)
@@ -30,6 +31,7 @@ int _getMp3BitRate(Uint8List bytes) {
   return 0;
 }
 
+// works
 int _getMp3CbrBitRate(Uint8List bytes) {
   for (int i = 0; i < bytes.length - 3; i++) {
     if (bytes[i] == 0xFF && (bytes[i + 1] & 0xE0) == 0xE0) {
@@ -55,12 +57,13 @@ int _getWavBitRate(Uint8List bytes) {
   return 0;
 }
 
-// ! doesn't work
+// works
 int _getOggBitRate(Uint8List bytes) {
-  // Check for Vorbis
-  final vorbisOffset = bytes.indexOfSequence([...'vorbis'.codeUnits]);
-  if (vorbisOffset != -1 && bytes.length >= vorbisOffset + 32) {
-    final bitRateBytes = bytes.sublist(vorbisOffset + 28, vorbisOffset + 32);
+  // Check for Vorbis Identification header
+  final offset = bytes.indexOfSequence([0x01, ...'vorbis'.codeUnits]);
+
+  if (offset != -1 && bytes.length >= offset + 24) {
+    final bitRateBytes = bytes.sublist(offset + 20, offset + 24);
     return _bytesToIntLE(bitRateBytes);
   }
 
