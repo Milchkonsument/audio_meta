@@ -44,11 +44,12 @@ int _getOggSampleRate(Uint8List bytes) {
 
 // works
 int _getFlacSampleRate(Uint8List bytes) {
-  if (bytes.length < 20) return 0;
+  final offset = bytes.indexOfSequence([...'fLaC'.codeUnits]);
+  if (offset == -1 || bytes.length < offset + 20) return 0;
 
-  final byte10 = bytes[18];
-  final byte11 = bytes[19];
-  final byte12 = bytes[20];
+  final byte10 = bytes[offset + 18];
+  final byte11 = bytes[offset + 19];
+  final byte12 = bytes[offset + 20];
 
   int sampleRate = ((byte10 << 12) | (byte11 << 4) | (byte12 >> 4));
   return sampleRate;
