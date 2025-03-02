@@ -75,8 +75,6 @@ int _getFlacBitRate(Uint8List bytes) {
   final offset = bytes.indexOfSequence([...'fLaC'.codeUnits]);
   if (offset == -1 || bytes.length < offset + 42) return 0;
 
-  final byte10 = bytes[offset + 18];
-  final byte11 = bytes[offset + 19];
   final byte12 = bytes[offset + 20];
   final byte13 = bytes[offset + 21];
 
@@ -85,7 +83,7 @@ int _getFlacBitRate(Uint8List bytes) {
   final byte16 = bytes[offset + 24];
   final byte17 = bytes[offset + 25];
 
-  final sampleRate = ((byte10 << 12) | (byte11 << 4) | (byte12 >> 4));
+  final sampleRate = _getFlacSampleRate(bytes);
   final numberChannels = ((byte12 >> 1) & 0x7) + 1;
   final bitDepth = (((byte12 & 0x1) << 4) | (byte13 >> 4)) + 1;
 
@@ -128,14 +126,17 @@ int _getAacBitRate(Uint8List bytes) {
   if (offset == -1) return 0;
 
   if (isADTSMPEG) {
-    final bitRate = (bytes[1] >> 2) & 0x0F;
-    if (bitRate >= _aacAdtsBitRates.length) {
-      return 0;
-    }
-
-    return _aacAdtsBitRates[bitRate];
+    // frame length from bit 30 to 43 from the offset
+    // [30-32] | [33-40] | [41-43]
+    final frameLength = (bytes[offset + 3] & 0x3) << 11 |
+        bytes[offset + 4] << 3 |
+        (bytes[offset + 5] & 0xE0) >> 5;
+    print('frameLength: $frameLength');
+    final bitRate = (frameLength * 8 * _getAacSampleRate(bytes)) ~/ 1024;
+    return bitRate;
   }
 
+  // ! ADIF bit rate has to be calculated differently
   final bitRate = bytes.sublist(offset + 6, offset + 9);
   return _bytesToIntBE(bitRate) * 8;
 }
