@@ -11,31 +11,14 @@ int _getBitRate(Uint8List bytes, AudioType type, int offset) => switch (type) {
 
 // ? works partially
 int _getMp3BitRate(Uint8List bytes, int offset) {
-  if (bytes[offset + 4] == 0) {
-    // If no VBR bit rate is included, extract bitrate from MPEG frame (CBR)
-    return _getMp3CbrBitRate(bytes, offset);
-  }
+  final mpegVersion = (bytes[offset + 1] >> 3) & 0x03;
+  final mpegLayer = (bytes[offset + 1] >> 1) & 0x03;
+  final bitrateIndex = (bytes[offset + 2] >> 4) & 0x0F;
 
-  // ! this part is probably wrong / untested
-  if (bytes.length >= offset + 16) {
-    final bitRateBytes = bytes.sublist(offset + 12, offset + 16);
-    return _bytesToIntBE(bitRateBytes) * 1000; // Xing header bitrate (VBR)
-  }
-
-  // If no Xing header, extract bitrate from MPEG frame (CBR)
-  _getMp3CbrBitRate(bytes, offset);
-
-  return 0;
-}
-
-// works
-int _getMp3CbrBitRate(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 3) return 0;
-
-  int bitRateIndex = (bytes[offset + 2] >> 4) & 0x0F;
-  int versionBit = (bytes[offset + 1] >> 3) & 0x03;
-
-  return _mp3BitRatesByVersionBits[versionBit]?[bitRateIndex] ?? 0;
+  return (_mp3BitRateByBitIndexAndVersionAndLayer[bitrateIndex]?[mpegVersion]
+              ?[mpegLayer] ??
+          0) *
+      1000;
 }
 
 // ? works partially
