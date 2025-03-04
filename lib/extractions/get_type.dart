@@ -1,10 +1,6 @@
 part of '../audio_meta.dart';
 
-AudioType _getType(Uint8List bytes) {
-  if (bytes.length < 12) {
-    return AudioType.unknown;
-  }
-
+AudioType? _getType(Uint8List bytes) {
   // Check for AAC (ADTS format, 0xFFF syncword)
   if (bytes.length > 2 && bytes[0] == 0xFF && (bytes[1] & 0xF0) == 0xF0) {
     return AudioType.aac;
@@ -53,5 +49,5 @@ AudioType _getType(Uint8List bytes) {
     return AudioType.flac;
   }
 
-  return AudioType.unknown;
+  return null;
 }

@@ -11,5 +11,7 @@ void main(List<String> arguments) {
         'Elapsed: ${DateTime.now().difference(timeSingle).inMilliseconds} ms\n');
   }
 
-  print('Total: ${DateTime.now().difference(time).inMilliseconds} ms');
+  print('Total:\t${DateTime.now().difference(time).inMilliseconds} ms');
+  print(
+      'Avg:\t${DateTime.now().difference(time).inMilliseconds / (AudioType.values.length - 1)} ms');
 }

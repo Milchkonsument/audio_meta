@@ -1,67 +1,56 @@
 part of '../audio_meta.dart';
 
-int _getBitRate(Uint8List bytes, AudioType type) => switch (type) {
-      AudioType.mp3 => _getMp3BitRate(bytes),
-      AudioType.wav => _getWavBitRate(bytes),
-      AudioType.ogg => _getOggBitRate(bytes),
-      AudioType.flac => _getFlacBitRate(bytes),
-      AudioType.aac => _getAacBitRate(bytes),
+int _getBitRate(Uint8List bytes, AudioType type, int offset) => switch (type) {
+      AudioType.mp3 => _getMp3BitRate(bytes, offset),
+      AudioType.wav => _getWavBitRate(bytes, offset),
+      AudioType.ogg => _getOggBitRate(bytes, offset),
+      AudioType.flac => _getFlacBitRate(bytes, offset),
+      AudioType.aac => _getAacBitRate(bytes, offset),
       _ => 0,
     };
 
 // ? works partially
-int _getMp3BitRate(Uint8List bytes) {
-  // Check for Xing header (VBR)
-  final xingOffset = bytes.indexOfSequence([...'Xing'.codeUnits]);
-
-  if (bytes[xingOffset + 4] == 0) {
+int _getMp3BitRate(Uint8List bytes, int offset) {
+  if (bytes[offset + 4] == 0) {
     // If no VBR bit rate is included, extract bitrate from MPEG frame (CBR)
-    return _getMp3CbrBitRate(bytes);
+    return _getMp3CbrBitRate(bytes, offset);
   }
 
   // ! this part is probably wrong / untested
-  if (xingOffset != -1 && bytes.length >= xingOffset + 16) {
-    final bitRateBytes = bytes.sublist(xingOffset + 12, xingOffset + 16);
+  if (bytes.length >= offset + 16) {
+    final bitRateBytes = bytes.sublist(offset + 12, offset + 16);
     return _bytesToIntBE(bitRateBytes) * 1000; // Xing header bitrate (VBR)
   }
 
   // If no Xing header, extract bitrate from MPEG frame (CBR)
-  _getMp3CbrBitRate(bytes);
+  _getMp3CbrBitRate(bytes, offset);
 
   return 0;
 }
 
 // works
-int _getMp3CbrBitRate(Uint8List bytes) {
-  for (int i = 0; i < bytes.length - 3; i++) {
-    if (bytes[i] == 0xFF && (bytes[i + 1] & 0xE0) == 0xE0) {
-      int bitRateIndex = (bytes[i + 2] >> 4) & 0x0F;
-      int versionBit = (bytes[i + 1] >> 3) & 0x03;
+int _getMp3CbrBitRate(Uint8List bytes, int offset) {
+  if (bytes.length < offset + 3) return 0;
 
-      return _mp3BitRatesByVersionBits[versionBit]?[bitRateIndex] ?? 0;
-    }
-  }
+  int bitRateIndex = (bytes[offset + 2] >> 4) & 0x0F;
+  int versionBit = (bytes[offset + 1] >> 3) & 0x03;
 
-  return 0;
+  return _mp3BitRatesByVersionBits[versionBit]?[bitRateIndex] ?? 0;
 }
 
 // ? works partially
-int _getWavBitRate(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([...'fmt '.codeUnits]);
-  if (offset == -1) return 0;
-
-  if (bytes.length >= offset + 28) {
-    return _bytesToIntLE(bytes.sublist(offset + 16, offset + 20)) * 8;
+int _getWavBitRate(Uint8List bytes, int offset) {
+  if (bytes.length < offset + 20) {
+    return 0;
   }
 
-  return 0;
+  return _bytesToIntLE(bytes.sublist(offset + 16, offset + 20)) * 8;
 }
 
 // works
-int _getOggBitRate(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([0x01, ...'vorbis'.codeUnits]);
-
-  if (offset != -1 && bytes.length >= offset + 24) {
+int _getOggBitRate(Uint8List bytes, int offset) {
+  // vorbis
+  if (bytes.length > offset + 24) {
     final bitRateBytes = bytes.sublist(offset + 20, offset + 24);
     return _bytesToIntLE(bitRateBytes);
   }
@@ -71,29 +60,26 @@ int _getOggBitRate(Uint8List bytes) {
 }
 
 // works
-int _getFlacBitRate(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([...'fLaC'.codeUnits]);
-  if (offset == -1 || bytes.length < offset + 42) return 0;
+int _getFlacBitRate(Uint8List bytes, int offset) {
+  if (bytes.length < offset + 26) return 0;
 
-  final byte12 = bytes[offset + 20];
-  final byte13 = bytes[offset + 21];
+  final byte21 = bytes[offset + 21];
+  final byte22 = bytes[offset + 22];
+  final byte23 = bytes[offset + 23];
+  final byte24 = bytes[offset + 24];
+  final byte25 = bytes[offset + 25];
 
-  final byte14 = bytes[offset + 22];
-  final byte15 = bytes[offset + 23];
-  final byte16 = bytes[offset + 24];
-  final byte17 = bytes[offset + 25];
-
-  final sampleRate = _getFlacSampleRate(bytes);
-  final numberChannels = ((byte12 >> 1) & 0x7) + 1;
-  final bitDepth = (((byte12 & 0x1) << 4) | (byte13 >> 4)) + 1;
+  final sampleRate = _getFlacSampleRate(bytes, offset);
+  final numberChannels = _getFlacChannelCount(bytes, offset);
+  final bitDepth = _getFlacBitDepth(bytes, offset);
 
   if (sampleRate == 0) return 0;
 
-  final totalSamples = ((byte13 & 0xF) << 32) |
-      byte14 << 24 |
-      byte15 << 16 |
-      byte16 << 8 |
-      byte17;
+  final totalSamples = ((byte21 & 0x0F) << 32) |
+      byte22 << 24 |
+      byte23 << 16 |
+      byte24 << 8 |
+      byte25;
 
   if (totalSamples == 0) return 0;
 
@@ -108,35 +94,28 @@ int _getFlacBitRate(Uint8List bytes) {
 }
 
 // ! doesn't work
-int _getAacBitRate(Uint8List bytes) {
-  var isADTSMPEG = false;
-
-  var offset = bytes.indexOfSequence([...'ADIF'.codeUnits], 0, 8);
-
-  if (offset == -1) {
-    offset = bytes.indexOfSequence([0xFF, 0xF1], 0, 8);
-    if (offset != -1) isADTSMPEG = true;
-  }
-
-  if (offset == -1) {
-    offset = bytes.indexOfSequence([0xFF, 0xF9], 0, 8);
-    if (offset != -1) isADTSMPEG = true;
-  }
-
-  if (offset == -1) return 0;
+int _getAacBitRate(Uint8List bytes, int offset) {
+  var isADTSMPEG = bytes[offset + 1] == 0xF1 || bytes[offset + 1] == 0xF9;
 
   if (isADTSMPEG) {
     // frame length from bit 30 to 43 from the offset
     // [30-32] | [33-40] | [41-43]
-    final frameLength = (bytes[offset + 3] & 0x3) << 11 |
+    final frameLength = (bytes[offset + 3] & 0x03) << 11 |
         bytes[offset + 4] << 3 |
         (bytes[offset + 5] & 0xE0) >> 5;
-    print('frameLength: $frameLength');
-    final bitRate = (frameLength * 8 * _getAacSampleRate(bytes)) ~/ 1024;
+
+    print(
+        '[${bytes[offset + 3].toRadixString(2).padLeft(8, '0')}][${bytes[offset + 4].toRadixString(2).padLeft(8, '0')}][${bytes[offset + 5].toRadixString(2).padLeft(8, '0')}]');
+    print(
+        'frameLength: $frameLength \n0x${frameLength.toRadixString(2).padLeft(32, '0')}');
+
+    final bitRate =
+        (frameLength * 8 * _getAacSampleRate(bytes, offset)) ~/ 1024;
     return bitRate;
   }
 
-  // ! ADIF bit rate has to be calculated differently
-  final bitRate = bytes.sublist(offset + 6, offset + 9);
-  return _bytesToIntBE(bitRate) * 8;
+  // ADIF Bitrate Extraction (bits 48-71 → 24-bit big-endian integer)
+  // ? not tested yet
+  final bitRate = [bytes[7], bytes[8], bytes[9] & 0xF0];
+  return _bytesToIntILBE(bitRate) * 8;
 }

@@ -2,10 +2,13 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:audio_meta/exceptions.dart';
+
 part 'enums.dart';
 part 'constants.dart';
 part 'conversion.dart';
 part 'extensions.dart';
+part 'extractions/get_header_offset.dart';
 part 'extractions/get_type.dart';
 part 'extractions/get_sample_rate.dart';
 part 'extractions/get_bit_rate.dart';
@@ -15,9 +18,13 @@ part 'extractions/get_bit_depth.dart';
 
 /// [AudioMeta] is a lightweight class that extracts audio metadata from audio data.
 ///
-/// Currently supported audio types: mp3, wav, ogg, flac, aac.
+/// Currently supported audio types: `mp3`, `wav`, `ogg`, `flac`, `aac`.
 ///
-/// Use [AudioMeta.fromFile], [AudioMeta.fromPath], or [AudioMeta.fromBytes] to create an instance.
+/// Use [AudioMeta.fromFile], [AudioMeta.fromPath], or [AudioMeta.fromBytes]
+/// to create an instance synchronously.
+///
+/// Use [AudioMeta.fromFileAsync], [AudioMeta.fromPathAsync],
+/// or [AudioMeta.fromBytesAsync] to create an instance asynchronously.
 ///
 /// Example:
 /// ```dart
@@ -29,17 +36,32 @@ part 'extractions/get_bit_depth.dart';
 /// ```
 final class AudioMeta {
   AudioMeta._(Uint8List bytes) {
-    type = _getType(bytes);
-    sampleRate = _getSampleRate(bytes, type);
-    bitRate = _getBitRate(bytes, type);
-    duration = _getDuration(bytes, type);
-    channelCount = _getChannelCount(bytes, type);
-    bitDepth = _getBitDepth(bytes, type);
+    final type = _getType(bytes);
+
+    if (type == null) {
+      throw ExtractionException('Audio type not supported.');
+    }
+
+    final offset = _getHeaderOffset(bytes, type);
+
+    if (offset == null) {
+      throw ExtractionException(
+          'No viable frame header found for ${type.name}-file.');
+    }
+
+    this.type = type;
+    sampleRate = _getSampleRate(bytes, type, offset);
+    bitRate = _getBitRate(bytes, type, offset);
+    duration = _getDuration(bytes, type, offset);
+    channelCount = _getChannelCount(bytes, type, offset);
+    bitDepth = _getBitDepth(bytes, type, offset);
   }
 
   /// Create an instance of [AudioMeta] from a [File].
   ///
   /// Throws a [FileSystemException] if the file does not exist.
+  ///
+  /// Throws an [ExtractionException] if any error occurs during extraction.
   ///
   /// Example:
   /// ```dart
@@ -53,6 +75,8 @@ final class AudioMeta {
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
+  /// Throws an [ExtractionException] if any error occurs during extraction.
+  ///
   /// Example:
   /// ```dart
   /// final meta = AudioMeta.fromPath('audio.mp3');
@@ -61,6 +85,8 @@ final class AudioMeta {
   factory AudioMeta.fromPath(String path) => AudioMeta.fromFile(File(path));
 
   /// Create an instance of [AudioMeta] from given [bytes].
+  ///
+  /// Throws an [ExtractionException] if any error occurs during extraction.
   ///
   /// Example:
   /// ```dart
@@ -77,6 +103,8 @@ final class AudioMeta {
   /// the main thread / UI, which is useful for large audio files.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
+  ///
+  /// Throws an [ExtractionException] if any error occurs during extraction.
   ///
   /// Example:
   /// ```dart
@@ -95,6 +123,8 @@ final class AudioMeta {
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
+  /// Throws an [ExtractionException] if any error occurs during extraction.
+  ///
   /// Example:
   /// ```dart
   /// final meta = await AudioMeta.fromPathAsync('audio.mp3');
@@ -107,6 +137,8 @@ final class AudioMeta {
   ///
   /// This method runs on a separate isolate to prevent blocking
   /// the main thread / UI, which is useful for large audio files.
+  ///
+  /// Throws an [ExtractionException] if any error occurs during extraction.
   ///
   /// Example:
   /// ```dart
