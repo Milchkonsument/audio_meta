@@ -1,42 +1,32 @@
 part of 'audio_meta.dart';
 
-/// Explanation of the Values:
-/// Index 00:
-/// MPEG-1: 44.1 kHz (standard for most MP3s)
-/// MPEG-2: 22.05 kHz
-/// MPEG-2.5: 11.025 kHz
-/// Index 01:
-/// MPEG-1: 48 kHz
-/// MPEG-2: 24 kHz
-/// MPEG-2.5: 12 kHz
-/// Index 10:
-/// MPEG-1: 32 kHz
-/// MPEG-2: 16 kHz
-/// MPEG-2.5: 8 kHz
-/// Index 11: Reserved (not used)
+/// 00 - MPEG Version 2.5 (later extension of MPEG 2)
+// 01 - reserved
+// 10 - MPEG Version 2 (ISO/IEC 13818-3)
+// 11 - MPEG Version 1 (ISO/IEC 11172-3)
 const _mp3SampleRatesByVersionBits = {
   // MPEG-1
-  0: [
+  3: [
     44100,
     48000,
     32000,
     0,
   ],
   // MPEG-2
-  1: [
+  2: [
     22050,
     24000,
     16000,
     0,
   ],
   // MPEG-2.5
-  2: [
+  0: [
     11025,
     12000,
     8000,
     0,
   ],
-  3: [
+  1: [
     0,
     0,
     0,

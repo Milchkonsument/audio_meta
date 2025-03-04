@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:audio_meta/exceptions.dart';
@@ -46,7 +47,7 @@ final class AudioMeta {
 
     if (offset == null) {
       throw ExtractionException(
-          'No viable frame header found for ${type.name}-file.');
+          'No viable frame header found for ${type.name} file.');
     }
 
     this.type = type;

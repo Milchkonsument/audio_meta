@@ -10,9 +10,23 @@ int? _getHeaderOffset(Uint8List bytes, AudioType type) => (switch (type) {
     })(bytes);
 
 int? _getMp3HeaderOffset(Uint8List bytes) {
-  int? offset = bytes.indexOfSequence([...'Xing'.codeUnits]);
-  offset ??= bytes.indexOfSequence([...'LAME'.codeUnits]);
-  offset ??= bytes.indexOfSequence([...'Info'.codeUnits]);
+  int? offset;
+  int searched = 0;
+
+  while (offset == null) {
+    final index = bytes.indexOfSequence([0xFF], searched);
+
+    if (index == null) {
+      break;
+    }
+
+    if (bytes[index + 1] & 0xE0 == 0xE0) {
+      offset = index;
+    }
+
+    searched = index;
+  }
+
   return offset;
 }
 
