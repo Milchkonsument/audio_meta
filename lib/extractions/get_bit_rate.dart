@@ -15,13 +15,13 @@ int _getMp3BitRate(Uint8List bytes, int offset) {
   final mpegLayer = (bytes[offset + 1] >> 1) & 0x03;
   final bitrateIndex = (bytes[offset + 2] >> 4) & 0x0F;
 
-  return (_mp3BitRateByBitIndexAndVersionAndLayer[bitrateIndex]?[mpegVersion]
-              ?[mpegLayer] ??
+  return (_MP3_BITRATE_BY_BIT_INDEX_AND_VERSION_AND_LAYER[bitrateIndex]
+              ?[mpegVersion]?[mpegLayer] ??
           0) *
       1000;
 }
 
-// ? works partially
+// works
 int _getWavBitRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 20) {
     return 0;
@@ -30,7 +30,7 @@ int _getWavBitRate(Uint8List bytes, int offset) {
   return _bytesToIntLE(bytes.sublist(offset + 16, offset + 20)) * 8;
 }
 
-// works
+// ? works partially (no VBR support)
 int _getOggBitRate(Uint8List bytes, int offset) {
   // vorbis
   if (bytes.length > offset + 24) {
@@ -78,7 +78,8 @@ int _getFlacBitRate(Uint8List bytes, int offset) {
 
 // ! doesn't work
 int _getAacBitRate(Uint8List bytes, int offset) {
-  var isADTSMPEG = bytes[offset + 1] == 0xF1 || bytes[offset + 1] == 0xF9;
+  var isADTSMPEG = bytes[offset] == 0xFF &&
+      (bytes[offset + 1] == 0xF1 || bytes[offset + 1] == 0xF9);
 
   if (isADTSMPEG) {
     // frame length from bit 30 to 43 from the offset

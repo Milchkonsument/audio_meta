@@ -17,7 +17,9 @@ int _getMp3SampleRate(Uint8List bytes, int offset) {
   int sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
   int versionBits = (bytes[offset + 1] >> 3) & 0x03;
 
-  return _mp3SampleRatesByVersionBits[versionBits]?[sampleRateIndex] ?? 0;
+  return _MP3_SAMPLE_RATES_BY_VERSION_AND_SAMPLE_RATE_INDEX[versionBits]
+          ?[sampleRateIndex] ??
+      0;
 }
 
 // works
@@ -54,8 +56,9 @@ int _getAacSampleRate(Uint8List bytes, int offset) {
   }
 
   final sampleRateIndex = (bytes[2] & 0x3C) >> 2;
-  if (sampleRateIndex >= 0 && sampleRateIndex < _aacSampleRates.length) {
-    return _aacSampleRates[sampleRateIndex];
+  if (sampleRateIndex >= 0 &&
+      sampleRateIndex < _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX.length) {
+    return _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[sampleRateIndex];
   }
 
   return 0;

@@ -1,10 +1,9 @@
 part of '../audio_meta.dart';
 
 extension Uint8ListExtensions on Uint8List {
-  int? indexOfSequence(List<int> sequence, [int start = 0, int? limit]) {
-    for (int i = start;
-        i <= min(length - sequence.length, limit ?? length);
-        i++) {
+  int? indexOfSequence(List<int> sequence, [int start = 0, int limit = 256]) {
+    final end = min(length - sequence.length, start + limit);
+    for (int i = start; i <= end; i++) {
       if (sublist(i, i + sequence.length).equals(sequence)) {
         return i;
       }

@@ -14,7 +14,7 @@ int? _getMp3HeaderOffset(Uint8List bytes) {
   int searched = 0;
 
   while (offset == null) {
-    final index = bytes.indexOfSequence([0xFF], searched);
+    final index = bytes.indexOfSequence(_MP3_HEADER_SEQUENCE, searched);
 
     if (index == null) {
       break;
@@ -31,24 +31,24 @@ int? _getMp3HeaderOffset(Uint8List bytes) {
 }
 
 int? _getWavHeaderOffset(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([...'fmt '.codeUnits], 12);
+  final offset = bytes.indexOfSequence(_WAV_HEADER_SEQUENCE, 12);
   return offset;
 }
 
 int? _getOggHeaderOffset(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([0x01, ...'vorbis'.codeUnits]);
+  final offset = bytes.indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE, 64);
   // TODO handle other things than vorbis
   return offset;
 }
 
 int? _getFlacHeaderOffset(Uint8List bytes) {
-  final offset = bytes.indexOfSequence([...'fLaC'.codeUnits]);
+  final offset = bytes.indexOfSequence(_FLAC_HEADER_SEQUENCE);
   return offset;
 }
 
 int? _getAacHeaderOffset(Uint8List bytes) {
-  var offset = bytes.indexOfSequence([...'ADIF'.codeUnits], 0, 8) ??
-      bytes.indexOfSequence([0xFF], 0, 8);
+  var offset = bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADIF, 0, 8) ??
+      bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADTS, 0, 8);
 
   return offset;
 }

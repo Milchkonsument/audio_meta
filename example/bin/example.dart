@@ -14,4 +14,9 @@ void main(List<String> arguments) {
   print('Total:\t${DateTime.now().difference(time).inMilliseconds} ms');
   print(
       'Avg:\t${DateTime.now().difference(time).inMilliseconds / (AudioType.values.length - 1)} ms');
+
+  for (final header in ['fmt ', 'vorbis', 'fLaC', 'ADIF']) {
+    print(
+        '$header: [${header.codeUnits.map((e) => '0x${e.toRadixString(16)}').join(', ')}]');
+  }
 }

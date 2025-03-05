@@ -1,10 +1,30 @@
+// ignore_for_file: constant_identifier_names
+
 part of 'audio_meta.dart';
 
+/// 'fmt '
+const _WAV_HEADER_SEQUENCE = [0x66, 0x6d, 0x74, 0x20];
+
+/// 'vorbis'
+const _OGG_VORBIS_HEADER_SEQUENCE = [0x01, 0x76, 0x6f, 0x72, 0x62, 0x69, 0x73];
+
+/// 'fLaC'
+const _FLAC_HEADER_SEQUENCE = [0x66, 0x4c, 0x61, 0x43];
+
+/// 'ADIF'
+const _AAC_HEADER_SEQUENCE_ADIF = [0x41, 0x44, 0x49, 0x46];
+
+/// 0b11111111
+const _AAC_HEADER_SEQUENCE_ADTS = [0xFF];
+
+/// 0b11111111
+const _MP3_HEADER_SEQUENCE = [0xFF];
+
 /// 00 - MPEG Version 2.5 (later extension of MPEG 2)
-// 01 - reserved
-// 10 - MPEG Version 2 (ISO/IEC 13818-3)
-// 11 - MPEG Version 1 (ISO/IEC 11172-3)
-const _mp3SampleRatesByVersionBits = {
+/// 01 - reserved
+/// 10 - MPEG Version 2 (ISO/IEC 13818-3)
+/// 11 - MPEG Version 1 (ISO/IEC 11172-3)
+const _MP3_SAMPLE_RATES_BY_VERSION_AND_SAMPLE_RATE_INDEX = {
   // MPEG-1
   3: [
     44100,
@@ -35,7 +55,7 @@ const _mp3SampleRatesByVersionBits = {
 };
 
 const Map<int, Map<int, Map<int, int>>>
-    _mp3BitRateByBitIndexAndVersionAndLayer = {
+    _MP3_BITRATE_BY_BIT_INDEX_AND_VERSION_AND_LAYER = {
   0x0: {
     0: {3: 0, 2: 0, 1: 0},
     2: {3: 0, 2: 0, 1: 0},
@@ -118,7 +138,7 @@ const Map<int, Map<int, Map<int, int>>>
   },
 };
 
-const _aacSampleRates = [
+const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
   96000,
   88200,
   64000,
@@ -134,24 +154,5 @@ const _aacSampleRates = [
   7350,
   0,
   0,
-  0,
-];
-
-const _mp3Bitrates = [
-  0,
-  32,
-  40,
-  48,
-  56,
-  64,
-  80,
-  96,
-  112,
-  128,
-  160,
-  192,
-  224,
-  256,
-  320,
   0,
 ];
