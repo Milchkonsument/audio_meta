@@ -36,8 +36,9 @@ int? _getWavHeaderOffset(Uint8List bytes) {
 }
 
 int? _getOggHeaderOffset(Uint8List bytes) {
-  final offset = bytes.indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE, 64);
-  // TODO handle other things than vorbis
+  var offset = bytes.indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE, 64);
+  offset ??= bytes.indexOfSequence(_OGG_OPUS_HEADER_SEQUENCE, 64);
+  offset ??= bytes.indexOfSequence(_OGG_FLAC_HEADER_SEQUENCE, 64);
   return offset;
 }
 
@@ -47,8 +48,8 @@ int? _getFlacHeaderOffset(Uint8List bytes) {
 }
 
 int? _getAacHeaderOffset(Uint8List bytes) {
-  var offset = bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADIF, 0, 8) ??
-      bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADTS, 0, 8);
+  var offset = bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADIF, 0, 8);
+  offset ??= bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADTS, 0, 8);
 
   return offset;
 }
