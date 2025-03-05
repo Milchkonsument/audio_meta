@@ -9,7 +9,7 @@ int _getBitRate(Uint8List bytes, AudioType type, int offset) => switch (type) {
       _ => 0,
     };
 
-// ? works partially
+// ? works partially (no VBR support)
 int _getMp3BitRate(Uint8List bytes, int offset) {
   final mpegVersion = (bytes[offset + 1] >> 3) & 0x03;
   final mpegLayer = (bytes[offset + 1] >> 1) & 0x03;
