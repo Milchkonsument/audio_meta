@@ -43,14 +43,17 @@ final class AudioMeta {
       throw ExtractionException('Audio type not supported.');
     }
 
-    final offset = _getHeaderOffset(bytes, type);
+    final offsetAndEncoding = _getHeaderOffsetAndEncoding(bytes, type);
 
-    if (offset == null) {
+    if (offsetAndEncoding == null) {
       throw ExtractionException(
           'No viable frame header found for ${type.name} file.');
     }
 
+    final offset = offsetAndEncoding.$1;
+
     this.type = type;
+    encoding = offsetAndEncoding.$2;
     sampleRate = _getSampleRate(bytes, type, offset);
     bitRate = _getBitRate(bytes, type, offset);
     duration = _getDuration(bytes, type, offset);
@@ -151,8 +154,11 @@ final class AudioMeta {
   static Future<AudioMeta> fromBytesAsync(Uint8List bytes) =>
       Isolate.run(() => AudioMeta._(bytes));
 
-  /// Audio type (format) of the input bytes
+  /// Audio type (format) of the input
   late final AudioType type;
+
+  /// Audio encoding type
+  late final EncodingType encoding;
 
   /// Audio sample rate in Hz
   late final int sampleRate;
@@ -180,5 +186,5 @@ final class AudioMeta {
 
   @override
   String toString() =>
-      'AudioMeta(${type.name}, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, ${durationInSeconds.toStringAsFixed(2)}s)';
+      'AudioMeta($encoding, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, ${durationInSeconds.toStringAsFixed(2)}s, $channelCount channels, $bitDepth bit depth)';
 }

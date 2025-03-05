@@ -22,6 +22,7 @@
 * 🔊 Bit Rate
 * 🔊 Bit Depth
 * 🔊 Channel Count
+* 🔊 Encoding
 * more to come
 
 ## Getting Started

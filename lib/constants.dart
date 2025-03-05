@@ -42,7 +42,22 @@ const _AAC_HEADER_SEQUENCE_ADIF = [0x41, 0x44, 0x49, 0x46];
 const _AAC_HEADER_SEQUENCE_ADTS = [0xFF];
 
 /// 0b11111111
-const _MP3_HEADER_SEQUENCE = [0xFF];
+const _MP3_MPEG_HEADER_SEQUENCE = [0xFF];
+
+/// 'Xing'
+const _MP3_XING_HEADER_SEQUENCE = [0x58, 0x69, 0x6E, 0x67];
+
+const _WAV_FORMAT_CODES = {
+  0x0001: EncodingType.wavPcm,
+  0x0003: EncodingType.wavIeee,
+  0x0006: EncodingType.wavAlaw,
+  0x0007: EncodingType.wavMulaw,
+  0x0011: EncodingType.wavAdpcm,
+  0x0017: EncodingType.wavGsm,
+  0x001A: EncodingType.wavAdpcm,
+  0x0062: EncodingType.wavG722,
+  0x0069: EncodingType.wavG729,
+};
 
 /// 00 - MPEG Version 2.5 (later extension of MPEG 2)
 /// 01 - reserved
