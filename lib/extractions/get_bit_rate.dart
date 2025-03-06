@@ -1,7 +1,9 @@
 part of '../audio_meta.dart';
 
-int _getBitRate(Uint8List bytes, AudioType type, int offset) => switch (type) {
-      AudioType.mp3 => _getMp3BitRate(bytes, offset),
+int _getBitRate(
+        Uint8List bytes, AudioType type, int offset, EncodingType encoding) =>
+    switch (type) {
+      AudioType.mp3 => _getMp3BitRate(bytes, offset, encoding),
       AudioType.wav => _getWavBitRate(bytes, offset),
       AudioType.ogg => _getOggBitRate(bytes, offset),
       AudioType.flac => _getFlacBitRate(bytes, offset),
@@ -9,8 +11,28 @@ int _getBitRate(Uint8List bytes, AudioType type, int offset) => switch (type) {
       _ => 0,
     };
 
-// ? works partially (no VBR support)
-int _getMp3BitRate(Uint8List bytes, int offset) {
+// works, although VBR is a little rough around the edges (inaccurate)
+int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.mp3Cbr) {
+    return _getMp3BitRateAtFrameOffset(bytes, offset);
+  }
+
+  if (encoding == EncodingType.mp3Vbr) {
+    var bitRateSamples = <int>[];
+    int? currentOffset = offset;
+
+    while (currentOffset != null && currentOffset < bytes.length - 4) {
+      bitRateSamples.add(_getMp3BitRateAtFrameOffset(bytes, currentOffset));
+      currentOffset = bytes.indexOfSequence([0xFF], currentOffset + 255);
+    }
+    bitRateSamples = bitRateSamples.where((b) => b != 0).toList();
+    return bitRateSamples.fold(0, (a, b) => a + b) ~/ bitRateSamples.length;
+  }
+
+  return 0;
+}
+
+int _getMp3BitRateAtFrameOffset(Uint8List bytes, int offset) {
   final mpegVersion = (bytes[offset + 1] >> 3) & 0x03;
   final mpegLayer = (bytes[offset + 1] >> 1) & 0x03;
   final bitrateIndex = (bytes[offset + 2] >> 4) & 0x0F;

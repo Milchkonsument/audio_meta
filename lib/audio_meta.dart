@@ -51,11 +51,12 @@ final class AudioMeta {
     }
 
     final offset = offsetAndEncoding.$1;
+    final encoding = offsetAndEncoding.$2;
 
     this.type = type;
-    encoding = offsetAndEncoding.$2;
+    this.encoding = encoding;
     sampleRate = _getSampleRate(bytes, type, offset);
-    bitRate = _getBitRate(bytes, type, offset);
+    bitRate = _getBitRate(bytes, type, offset, encoding);
     duration = _getDuration(bytes, type, offset);
     channelCount = _getChannelCount(bytes, type, offset);
     bitDepth = _getBitDepth(bytes, type, offset);

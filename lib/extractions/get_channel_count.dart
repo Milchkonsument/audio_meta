@@ -14,6 +14,7 @@ int _getAacChannelCount(Uint8List bytes, int offset) {
   return 0;
 }
 
+// works
 int _getFlacChannelCount(Uint8List bytes, int offset) {
   if (bytes.length < offset + 21) return 0;
 
