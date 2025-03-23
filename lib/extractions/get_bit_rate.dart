@@ -28,7 +28,6 @@ int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
     }
 
     bitRates = bitRates.where((b) => b != 0).toList();
-    print('bitRates: $bitRates');
     return bitRates.fold(0, (a, b) => a + b) ~/ bitRates.length;
   }
 

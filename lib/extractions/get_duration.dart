@@ -45,8 +45,6 @@ Duration _estimateMp3DurationFromFrames(
     frameCount++;
   }
 
-  print(frameCount);
-
   final durationInMs = frameCount * samplesPerFrame / sampleRate * 8 * 100000;
   return Duration(milliseconds: durationInMs.round());
 }
