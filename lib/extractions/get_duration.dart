@@ -1,8 +1,9 @@
 part of '../audio_meta.dart';
 
-Duration _getDuration(Uint8List bytes, AudioType type, int offset) =>
+Duration _getDuration(
+        Uint8List bytes, AudioType type, int offset, EncodingType encoding) =>
     switch (type) {
-      AudioType.mp3 => _getMp3Duration(bytes, offset),
+      AudioType.mp3 => _getMp3Duration(bytes, offset, encoding),
       AudioType.wav => _getWavDuration(bytes, offset),
       AudioType.ogg => _getOggDuration(bytes, offset),
       AudioType.flac => _getFlacDuration(bytes, offset),
@@ -10,19 +11,44 @@ Duration _getDuration(Uint8List bytes, AudioType type, int offset) =>
       _ => Duration.zero,
     };
 
-Duration _getMp3Duration(Uint8List bytes, int offset) {
-  final tlenOffset = bytes.indexOfSequence('TLEN'.codeUnits, 32);
-
-  if (tlenOffset != null) {
-    final durationBytes = bytes.sublist(tlenOffset + 7, tlenOffset + 11);
-    return Duration(seconds: _bytesToIntILBE(durationBytes));
+Duration _getMp3Duration(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.mp3Cbr) {
+    final bitrate = _getMp3BitRate(bytes, offset, encoding);
+    final fileSize = bytes.length;
+    final headerSize = 4;
+    final durationMs = (fileSize - headerSize) / bitrate * 1000;
+    return Duration(milliseconds: durationMs.toInt());
   }
 
-  return _estimateMp3DurationFromFrames(bytes, offset);
+  if (encoding == EncodingType.mp3Vbr) {
+    return _estimateMp3DurationFromFrames(bytes, offset, encoding);
+  }
+
+  return Duration.zero;
 }
 
-Duration _estimateMp3DurationFromFrames(Uint8List bytes, int offset) {
-  return Duration.zero;
+Duration _estimateMp3DurationFromFrames(
+    Uint8List bytes, int offset, EncodingType encoding) {
+  final versionIndex = (bytes[offset + 1] >> 3) & 0x03;
+  final samplesPerFrame =
+      _MP3_SAMPLES_PER_FRAME_BY_VERSION_INDEX[versionIndex]!;
+  final sampleRate = _getMp3SampleRate(bytes, offset, encoding);
+
+  var frameCount = 0;
+  int? currentOffset = offset;
+  final headerSequence = encoding == EncodingType.mp3Cbr
+      ? _MP3_MPEG_HEADER_SEQUENCE
+      : _MP3_XING_HEADER_SEQUENCE;
+
+  while (currentOffset != null) {
+    currentOffset = bytes.indexOfSequence(headerSequence, currentOffset + 4);
+    frameCount++;
+  }
+
+  print(frameCount);
+
+  final durationInMs = frameCount * samplesPerFrame / sampleRate * 8 * 100000;
+  return Duration(milliseconds: durationInMs.round());
 }
 
 Duration _getWavDuration(Uint8List bytes, int offset) {

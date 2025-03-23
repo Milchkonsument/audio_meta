@@ -55,18 +55,19 @@ final class AudioMeta {
 
     this.type = type;
     this.encoding = encoding;
-    sampleRate = _getSampleRate(bytes, type, offset);
+    sampleRate = _getSampleRate(bytes, type, offset, encoding);
     bitRate = _getBitRate(bytes, type, offset, encoding);
-    duration = _getDuration(bytes, type, offset);
-    channelCount = _getChannelCount(bytes, type, offset);
-    bitDepth = _getBitDepth(bytes, type, offset);
+    duration = _getDuration(bytes, type, offset, encoding);
+    channelCount = _getChannelCount(bytes, type, offset, encoding);
+    bitDepth = _getBitDepth(bytes, type, offset, encoding);
   }
 
   /// Create an instance of [AudioMeta] from a [File].
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
-  /// Throws an [ExtractionException] if any error occurs during extraction.
+  /// Throws an [ExtractionException] if any error occurs during extraction
+  /// of metadata.
   ///
   /// Example:
   /// ```dart
@@ -80,7 +81,8 @@ final class AudioMeta {
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
-  /// Throws an [ExtractionException] if any error occurs during extraction.
+  /// Throws an [ExtractionException] if any error occurs during extraction
+  /// of metadata.
   ///
   /// Example:
   /// ```dart
@@ -91,7 +93,8 @@ final class AudioMeta {
 
   /// Create an instance of [AudioMeta] from given [bytes].
   ///
-  /// Throws an [ExtractionException] if any error occurs during extraction.
+  /// Throws an [ExtractionException] if any error occurs during extraction
+  /// of metadata.
   ///
   /// Example:
   /// ```dart
@@ -105,11 +108,12 @@ final class AudioMeta {
   /// Create an instance of [AudioMeta] from a [File] asynchronously.
   ///
   /// This method runs on a separate isolate to prevent blocking
-  /// the main thread / UI, which is useful for large audio files.
+  /// the main thread / UI.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
-  /// Throws an [ExtractionException] if any error occurs during extraction.
+  /// Throws an [ExtractionException] if any error occurs during extraction
+  /// of metadata.
   ///
   /// Example:
   /// ```dart
@@ -124,11 +128,12 @@ final class AudioMeta {
   /// at the given [path] asynchronously.
   ///
   /// This method runs on a separate isolate to prevent blocking
-  /// the main thread / UI, which is useful for large audio files.
+  /// the main thread / UI.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
-  /// Throws an [ExtractionException] if any error occurs during extraction.
+  /// Throws an [ExtractionException] if any error occurs during extraction
+  /// of metadata.
   ///
   /// Example:
   /// ```dart
@@ -141,9 +146,10 @@ final class AudioMeta {
   /// Create an instance of [AudioMeta] from given [bytes] asynchronously.
   ///
   /// This method runs on a separate isolate to prevent blocking
-  /// the main thread / UI, which is useful for large audio files.
+  /// the main thread / UI.
   ///
-  /// Throws an [ExtractionException] if any error occurs during extraction.
+  /// Throws an [ExtractionException] if any error occurs during extraction
+  /// of metadata.
   ///
   /// Example:
   /// ```dart
@@ -174,7 +180,9 @@ final class AudioMeta {
   late final int channelCount;
 
   /// Audio bit depth
-  late final int bitDepth;
+  ///
+  /// For lossy audio encodings, bit depth doesn't exist and will be `null`.
+  late final int? bitDepth;
 
   /// Audio bit rate in kbps
   int get kBitRate => bitRate ~/ 1000;
@@ -187,5 +195,5 @@ final class AudioMeta {
 
   @override
   String toString() =>
-      'AudioMeta($encoding, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, ${durationInSeconds.toStringAsFixed(2)}s, $channelCount channels, $bitDepth bit depth)';
+      'AudioMeta($encoding, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, ${durationInSeconds.toStringAsFixed(2)}s, $channelCount channels, ${bitDepth ?? '-'} bit depth)';
 }

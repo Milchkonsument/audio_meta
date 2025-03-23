@@ -195,3 +195,11 @@ const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
   0,
   0,
 ];
+
+// 1152 samples per frame (MPEG-1), 576 for MPEG-2/2.5
+const _MP3_SAMPLES_PER_FRAME_BY_VERSION_INDEX = {
+  0: 576,
+  1: 0,
+  2: 576,
+  3: 1152,
+};

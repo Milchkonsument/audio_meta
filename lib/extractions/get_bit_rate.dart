@@ -18,15 +18,18 @@ int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
   }
 
   if (encoding == EncodingType.mp3Vbr) {
-    var bitRateSamples = <int>[];
+    var bitRates = <int>[];
     int? currentOffset = offset;
 
-    while (currentOffset != null && currentOffset < bytes.length - 4) {
-      bitRateSamples.add(_getMp3BitRateAtFrameOffset(bytes, currentOffset));
-      currentOffset = bytes.indexOfSequence([0xFF], currentOffset + 255);
+    while (currentOffset != null) {
+      bitRates.add(_getMp3BitRateAtFrameOffset(bytes, currentOffset));
+      currentOffset =
+          bytes.indexOfSequence(_MP3_XING_HEADER_SEQUENCE, currentOffset + 8);
     }
-    bitRateSamples = bitRateSamples.where((b) => b != 0).toList();
-    return bitRateSamples.fold(0, (a, b) => a + b) ~/ bitRateSamples.length;
+
+    bitRates = bitRates.where((b) => b != 0).toList();
+    print('bitRates: $bitRates');
+    return bitRates.fold(0, (a, b) => a + b) ~/ bitRates.length;
   }
 
   return 0;

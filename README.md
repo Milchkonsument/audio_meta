@@ -23,7 +23,6 @@
 * 🔊 Bit Depth
 * 🔊 Channel Count
 * 🔊 Encoding
-* more to come
 
 ## Getting Started
 ### Get from pub.dev
@@ -43,7 +42,7 @@ AudioMeta.fromFile(File file)
 AudioMeta.fromPath(String path)
 AudioMeta.fromBytes(Uint8list bytes)
 
-// async (not blocking main isolate for large files)
+// async (not blocking main isolate)
 AudioMeta.fromFileAsync(File file)
 AudioMeta.fromPathAsync(String path)
 AudioMeta.fromBytesAsync(Uint8list bytes)

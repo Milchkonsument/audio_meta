@@ -1,16 +1,28 @@
 part of '../audio_meta.dart';
 
-int _getChannelCount(Uint8List bytes, AudioType type, int offset) =>
+int _getChannelCount(
+        Uint8List bytes, AudioType type, int offset, EncodingType encoding) =>
     switch (type) {
       AudioType.mp3 => _getMp3ChannelCount(bytes, offset),
       AudioType.wav => _getWavChannelCount(bytes, offset),
-      AudioType.ogg => _getOggChannelCount(bytes, offset),
+      AudioType.ogg => _getOggChannelCount(bytes, offset, encoding),
       AudioType.flac => _getFlacChannelCount(bytes, offset),
-      AudioType.aac => _getAacChannelCount(bytes, offset),
+      AudioType.aac => _getAacChannelCount(bytes, offset, encoding),
       _ => 0,
     };
 
-int _getAacChannelCount(Uint8List bytes, int offset) {
+int _getAacChannelCount(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.aacAdts) {
+    final byte0 = bytes[offset + 2];
+    final byte1 = bytes[offset + 3];
+    return ((byte0 & 0x1) << 2) | ((byte1 & 0xC0) >> 6);
+  }
+
+  if (encoding == EncodingType.aacAdif) {
+    // TODO
+    return 2;
+  }
+
   return 0;
 }
 
@@ -22,14 +34,36 @@ int _getFlacChannelCount(Uint8List bytes, int offset) {
   return ((byte >> 1) & 0x7) + 1;
 }
 
-int _getOggChannelCount(Uint8List bytes, int offset) {
+int _getOggChannelCount(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.oggFlac) {
+    final offsetFlac = _getFlacHeaderOffset(bytes)?.$1;
+    if (offsetFlac == null) return 0;
+    return _getFlacChannelCount(bytes, offsetFlac);
+  }
+
+  if (encoding == EncodingType.oggOpus) {
+    return bytes[offset + 9] & 0x1 == 1 ? 2 : 1;
+  }
+
+  if (encoding == EncodingType.oggVorbis) {
+    return bytes[offset + 11];
+  }
+
+  if (encoding == EncodingType.oggSpeex) {
+    return bytes[offset + 34];
+  }
+
   return 0;
 }
 
 int _getWavChannelCount(Uint8List bytes, int offset) {
-  return 0;
+  if (bytes.length < offset + 11) return 0;
+
+  return _bytesToIntLE(bytes.sublist(offset + 10, offset + 12));
 }
 
 int _getMp3ChannelCount(Uint8List bytes, int offset) {
-  return 0;
+  if (bytes.length < offset + 3) return 0;
+  final byte = bytes[offset + 3];
+  return (byte >> 6) & 0x3 == 0x3 ? 1 : 2;
 }

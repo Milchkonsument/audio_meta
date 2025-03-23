@@ -1,8 +1,9 @@
 part of '../audio_meta.dart';
 
-int _getSampleRate(Uint8List bytes, AudioType type, int offset) =>
+int _getSampleRate(
+        Uint8List bytes, AudioType type, int offset, EncodingType encoding) =>
     switch (type) {
-      AudioType.mp3 => _getMp3SampleRate(bytes, offset),
+      AudioType.mp3 => _getMp3SampleRate(bytes, offset, encoding),
       AudioType.wav => _getWavSampleRate(bytes, offset),
       AudioType.ogg => _getOggSampleRate(bytes, offset),
       AudioType.flac => _getFlacSampleRate(bytes, offset),
@@ -11,7 +12,7 @@ int _getSampleRate(Uint8List bytes, AudioType type, int offset) =>
     };
 
 // works
-int _getMp3SampleRate(Uint8List bytes, int offset) {
+int _getMp3SampleRate(Uint8List bytes, int offset, EncodingType encoding) {
   if (bytes.length < offset + 3) return 0;
 
   int sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
@@ -51,7 +52,7 @@ int _getFlacSampleRate(Uint8List bytes, int offset) {
 
 // works
 int _getAacSampleRate(Uint8List bytes, int offset) {
-  if (bytes.length < 7) {
+  if (bytes.length < 3) {
     return 0;
   }
 
