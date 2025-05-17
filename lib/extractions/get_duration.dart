@@ -70,16 +70,11 @@ Duration _getOggDuration(Uint8List bytes, int offset) {
 }
 
 Duration _getFlacDuration(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 26) return Duration.zero;
-
-  final sampleRateBytes = bytes.sublist(offset + 18, offset + 22);
-  final sampleCountBytes = bytes.sublist(offset + 22, offset + 26);
-  int sampleRate = _bytesToIntILBE(sampleRateBytes);
-  int sampleCount = _bytesToIntILBE(sampleCountBytes);
-
-  return sampleRate > 0
-      ? Duration(seconds: sampleCount ~/ sampleRate)
-      : Duration.zero;
+  final bitRate = _getFlacBitRate(bytes, offset);
+  if (bitRate == 0) return Duration.zero;
+  final dataSize = bytes.length - offset;
+  final durationInMs = ((dataSize * 8) / bitRate * 1000).toInt();
+  return Duration(milliseconds: durationInMs);
 }
 
 Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
