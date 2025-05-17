@@ -83,9 +83,6 @@ Duration _getFlacDuration(Uint8List bytes, int offset) {
 }
 
 Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
-  if (encoding == EncodingType.aacAdif) {}
-
-  if (encoding == EncodingType.aacAdts) {
     int? currentOffset = offset;
     int milliseconds = 0;
 
@@ -116,7 +113,4 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
     }
 
     return Duration(milliseconds: milliseconds);
-  }
-
-  return Duration.zero;
 }
