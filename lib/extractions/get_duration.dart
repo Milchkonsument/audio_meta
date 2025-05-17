@@ -83,34 +83,34 @@ Duration _getFlacDuration(Uint8List bytes, int offset) {
 }
 
 Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
-    int? currentOffset = offset;
-    int milliseconds = 0;
+  int? currentOffset = offset;
+  int milliseconds = 0;
 
-    while (currentOffset != null) {
-      final containsCRC = bytes[currentOffset + 1] & 0x01;
-      final adtsFrameHeaderSizeInBytes = containsCRC == 0 ? 7 : 9;
-      final adtsFrameSize = ((bytes[currentOffset + 3] & 0x03) << 11) |
-          ((bytes[currentOffset + 4] & 0xFF) << 3) |
-          ((bytes[currentOffset + 5] & 0xE0) >> 5);
-      final aacContentSizeBytes = adtsFrameSize - adtsFrameHeaderSizeInBytes;
+  while (currentOffset != null) {
+    final containsCRC = bytes[currentOffset + 1] & 0x01;
+    final adtsFrameHeaderSizeInBytes = containsCRC == 0 ? 7 : 9;
+    final adtsFrameSize = ((bytes[currentOffset + 3] & 0x03) << 11) |
+        ((bytes[currentOffset + 4] & 0xFF) << 3) |
+        ((bytes[currentOffset + 5] & 0xE0) >> 5);
+    final aacContentSizeBytes = adtsFrameSize - adtsFrameHeaderSizeInBytes;
 
-      final sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[
-          (bytes[currentOffset + 2] >> 2) & 0x0F];
+    final sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[
+        (bytes[currentOffset + 2] >> 2) & 0x0F];
 
-      if (sampleRate == -1) {
-        // TODO implement sample rate extraction from ADTS header for variable sample rates
-        continue;
-      }
-
-      if (sampleRate == 0) {
-        continue;
-      }
-
-      final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
-      milliseconds += (aacContentSizeBytes * 8 / bitrate * 1000).toInt();
-      currentOffset = bytes.indexOfSequence(
-          _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
+    if (sampleRate == -1) {
+      // TODO implement sample rate extraction from ADTS header for variable sample rates
+      continue;
     }
 
-    return Duration(milliseconds: milliseconds);
+    if (sampleRate == 0) {
+      continue;
+    }
+
+    final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
+    milliseconds += (aacContentSizeBytes * 8 / bitrate * 1000).toInt();
+    currentOffset = bytes.indexOfSequence(
+        _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
+  }
+
+  return Duration(milliseconds: milliseconds);
 }

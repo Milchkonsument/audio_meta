@@ -100,30 +100,36 @@ int _getFlacBitRate(Uint8List bytes, int offset) {
   return compressedBitRate.round();
 }
 
-// ! doesn't work
 int _getAacBitRate(Uint8List bytes, int offset) {
-  var isADTSMPEG = bytes[offset] == 0xFF &&
-      (bytes[offset + 1] == 0xF1 || bytes[offset + 1] == 0xF9);
+  int? currentOffset = offset;
+  final bitrates = <int>[];
 
-  if (isADTSMPEG) {
-    // frame length from bit 30 to 43 from the offset
-    // [30-32] | [33-40] | [41-43]
-    final frameLength = (bytes[offset + 3] & 0x03) << 11 |
-        bytes[offset + 4] << 3 |
-        (bytes[offset + 5] & 0xE0) >> 5;
+  while (currentOffset != null) {
+    final adtsFrameSize = ((bytes[currentOffset + 3] & 0x03) << 11) |
+        ((bytes[currentOffset + 4] & 0xFF) << 3) |
+        ((bytes[currentOffset + 5] & 0xE0) >> 5);
 
-    print(
-        '[${bytes[offset + 3].toRadixString(2).padLeft(8, '0')}][${bytes[offset + 4].toRadixString(2).padLeft(8, '0')}][${bytes[offset + 5].toRadixString(2).padLeft(8, '0')}]');
-    print(
-        'frameLength: $frameLength \n0x${frameLength.toRadixString(2).padLeft(32, '0')}');
+    final sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[
+        (bytes[currentOffset + 2] >> 2) & 0x0F];
 
-    final bitRate =
-        (frameLength * 8 * _getAacSampleRate(bytes, offset)) ~/ 1024;
-    return bitRate;
+    if (sampleRate == -1) {
+      // TODO implement sample rate extraction from ADTS header for variable sample rates
+      continue;
+    }
+
+    if (sampleRate == 0) {
+      continue;
+    }
+
+    final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
+    bitrates.add(bitrate.toInt());
+    currentOffset = bytes.indexOfSequence(
+        _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
   }
 
-  // ADIF Bitrate Extraction (bits 48-71 → 24-bit big-endian integer)
-  // ? not tested yet
-  final bitRate = [bytes[7], bytes[8], bytes[9] & 0xF0];
-  return _bytesToIntILBE(bitRate) * 8;
+  if (bitrates.isEmpty) {
+    return 0;
+  }
+
+  return bitrates.fold(0, (a, b) => a + b) ~/ bitrates.length;
 }
