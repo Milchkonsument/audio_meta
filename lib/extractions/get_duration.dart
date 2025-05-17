@@ -7,16 +7,15 @@ Duration _getDuration(
       AudioType.wav => _getWavDuration(bytes, offset),
       AudioType.ogg => _getOggDuration(bytes, offset),
       AudioType.flac => _getFlacDuration(bytes, offset),
-      AudioType.aac => _getAacDuration(bytes, offset),
+      AudioType.aac => _getAacDuration(bytes, offset, encoding),
       _ => Duration.zero,
     };
 
 Duration _getMp3Duration(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.mp3Cbr) {
     final bitrate = _getMp3BitRate(bytes, offset, encoding);
-    final fileSize = bytes.length;
-    final headerSize = 4;
-    final durationMs = (fileSize - headerSize) / bitrate * 1000;
+    final fileSizeBits = bytes.length * 8;
+    final durationMs = fileSizeBits / bitrate * 1000;
     return Duration(milliseconds: durationMs.toInt());
   }
 
@@ -53,12 +52,13 @@ Duration _getWavDuration(Uint8List bytes, int offset) {
   final dataOffset = bytes.indexOfSequence('data'.codeUnits);
   if (dataOffset == null) return Duration.zero;
 
-  int byteRate =
-      _bytesToIntILBE(bytes.sublist(offset + 8 + 8, offset + 8 + 12));
-  int dataSize = _bytesToIntILBE(bytes.sublist(dataOffset + 4, dataOffset + 8));
+  int dataSizeBits =
+      _bytesToIntILBE(bytes.sublist(dataOffset + 4, dataOffset + 8)) * 8;
 
-  return byteRate > 0
-      ? Duration(milliseconds: (dataSize * 1000) ~/ byteRate)
+  int bitRate = _getWavBitRate(bytes, offset);
+
+  return bitRate > 0
+      ? Duration(milliseconds: dataSizeBits ~/ bitRate)
       : Duration.zero;
 }
 
@@ -82,8 +82,47 @@ Duration _getFlacDuration(Uint8List bytes, int offset) {
       : Duration.zero;
 }
 
-Duration _getAacDuration(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 12) return Duration.zero;
-  final durationBytes = bytes.sublist(offset + 8, offset + 12);
-  return Duration(seconds: _bytesToIntILBE(durationBytes));
+Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.aacAdif) {}
+
+  if (encoding == EncodingType.aacAdts) {
+    int? currentOffset = offset;
+    int milliseconds = 0;
+
+    while (currentOffset != null) {
+      final containsCRC = bytes[currentOffset + 1] & 0x01;
+      final adtsFrameHeaderSizeInBytes = containsCRC == 0 ? 7 : 9;
+      final aacFramesPerADTSFrame = (bytes[currentOffset + 7] & 0x03) - 1;
+      final adtsFrameSize = ((bytes[currentOffset + 3] & 0x03) << 11) |
+          ((bytes[currentOffset + 4] & 0xFF) << 3) |
+          ((bytes[currentOffset + 5] & 0xE0) >> 5);
+      final aacContentSizeBytes = adtsFrameSize - adtsFrameHeaderSizeInBytes;
+
+      final sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[
+          (bytes[currentOffset + 2] >> 2) & 0x0F];
+
+      if (sampleRate == -1) {
+        // TODO implement sample rate extraction from ADTS header for variable sample rates
+        continue;
+      }
+
+      if (sampleRate == 0) {
+        continue;
+      }
+
+      // print(
+      //     'aac content size: $aacContentSizeBytes sample rate: $sampleRate Hz');
+
+      // final aacFrameDuration = aacContentSizeBytes ;
+
+      // milliseconds += (aacFrameDuration * 1000).round();
+
+      currentOffset = bytes.indexOfSequence(
+          _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
+    }
+
+    return Duration(milliseconds: milliseconds);
+  }
+
+  return Duration.zero;
 }

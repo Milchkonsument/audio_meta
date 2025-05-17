@@ -89,13 +89,13 @@ part of '../audio_meta.dart';
 }
 
 (int, EncodingType)? _getAacHeaderOffset(Uint8List bytes) {
-  var offset = bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADIF, 0, 8);
+  var offset = bytes.indexOfSequence(_AAC_ADIF_HEADER_SEQUENCE, 0, 8);
 
   if (offset != null) {
     return (offset, EncodingType.aacAdif);
   }
 
-  offset ??= bytes.indexOfSequence(_AAC_HEADER_SEQUENCE_ADTS, 0, 8);
+  offset ??= bytes.indexOfSequence(_AAC_ADTS_HEADER_SEQUENCE, 0, 8);
 
   if (offset != null) {
     return (offset, EncodingType.aacAdts);

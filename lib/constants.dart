@@ -36,10 +36,10 @@ const _OGG_FLAC_HEADER_SEQUENCE = [
 const _FLAC_HEADER_SEQUENCE = [0x66, 0x4c, 0x61, 0x43];
 
 /// 'ADIF'
-const _AAC_HEADER_SEQUENCE_ADIF = [0x41, 0x44, 0x49, 0x46];
+const _AAC_ADIF_HEADER_SEQUENCE = [0x41, 0x44, 0x49, 0x46];
 
 /// 0b11111111
-const _AAC_HEADER_SEQUENCE_ADTS = [0xFF];
+const _AAC_ADTS_HEADER_SEQUENCE = [0xFF];
 
 /// 0b11111111
 const _MP3_MPEG_HEADER_SEQUENCE = [0xFF];
@@ -177,6 +177,11 @@ const Map<int, Map<int, Map<int, int>>>
   },
 };
 
+/// ADTS sample rates
+///
+/// Returns the sample rate for each sample rate index in the ADTS header.
+///
+/// Returns -1 if the sample rate is written explicitly in the ADTS header.
 const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
   96000,
   88200,
@@ -193,7 +198,8 @@ const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
   7350,
   0,
   0,
-  0,
+  // frequency is written explicitly in the ADTS header
+  -1,
 ];
 
 // 1152 samples per frame (MPEG-1), 576 for MPEG-2/2.5

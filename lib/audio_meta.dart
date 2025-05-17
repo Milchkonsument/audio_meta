@@ -182,6 +182,8 @@ final class AudioMeta {
   /// Audio bit depth
   ///
   /// For lossy audio encodings, bit depth doesn't exist and will be `null`.
+  /// (The bit depth of lossy audio ecodings is picked by the encoder
+  /// and is not part of the audio data.)
   late final int? bitDepth;
 
   /// Audio bit rate in kbps
