@@ -92,7 +92,6 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
     while (currentOffset != null) {
       final containsCRC = bytes[currentOffset + 1] & 0x01;
       final adtsFrameHeaderSizeInBytes = containsCRC == 0 ? 7 : 9;
-      final aacFramesPerADTSFrame = (bytes[currentOffset + 7] & 0x03) - 1;
       final adtsFrameSize = ((bytes[currentOffset + 3] & 0x03) << 11) |
           ((bytes[currentOffset + 4] & 0xFF) << 3) |
           ((bytes[currentOffset + 5] & 0xE0) >> 5);
@@ -110,13 +109,8 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
         continue;
       }
 
-      // print(
-      //     'aac content size: $aacContentSizeBytes sample rate: $sampleRate Hz');
-
-      // final aacFrameDuration = aacContentSizeBytes ;
-
-      // milliseconds += (aacFrameDuration * 1000).round();
-
+      final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
+      milliseconds += (aacContentSizeBytes * 8 / bitrate * 1000).toInt();
       currentOffset = bytes.indexOfSequence(
           _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
     }

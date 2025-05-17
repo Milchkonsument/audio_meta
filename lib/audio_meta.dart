@@ -197,5 +197,5 @@ final class AudioMeta {
 
   @override
   String toString() =>
-      'AudioMeta($encoding, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, ${durationInSeconds.toStringAsFixed(2)}s, $channelCount channels, ${bitDepth ?? '-'} bit depth)';
+      'AudioMeta($encoding, ${sampleRateInKHz.toStringAsFixed(2)}kHz, ${kBitRate}kbps, $duration, $channelCount channels, ${bitDepth ?? '-'} bit depth)';
 }
