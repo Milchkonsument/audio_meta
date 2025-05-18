@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -107,9 +106,6 @@ final class AudioMeta {
 
   /// Create an instance of [AudioMeta] from a [File] asynchronously.
   ///
-  /// This method runs on a separate isolate to prevent blocking
-  /// the main thread / UI.
-  ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
   /// Throws an [ExtractionException] if any error occurs during extraction
@@ -122,13 +118,10 @@ final class AudioMeta {
   /// print(meta.type); // AudioType.mp3
   /// ```
   static Future<AudioMeta> fromFileAsync(File file) async =>
-      Isolate.run(() async => AudioMeta.fromBytes(await file.readAsBytes()));
+      await AudioMeta.fromBytesAsync(await file.readAsBytes());
 
   /// Create an instance of [AudioMeta] from a file
   /// at the given [path] asynchronously.
-  ///
-  /// This method runs on a separate isolate to prevent blocking
-  /// the main thread / UI.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
@@ -140,13 +133,10 @@ final class AudioMeta {
   /// final meta = await AudioMeta.fromPathAsync('audio.mp3');
   /// print(meta.type); // AudioType.mp3
   /// ```
-  static Future<AudioMeta> fromPathAsync(String path) =>
-      fromFileAsync(File(path));
+  static Future<AudioMeta> fromPathAsync(String path) async =>
+      await AudioMeta.fromFileAsync(File(path));
 
   /// Create an instance of [AudioMeta] from given [bytes] asynchronously.
-  ///
-  /// This method runs on a separate isolate to prevent blocking
-  /// the main thread / UI.
   ///
   /// Throws an [ExtractionException] if any error occurs during extraction
   /// of metadata.
@@ -158,8 +148,8 @@ final class AudioMeta {
   /// final meta = await AudioMeta.fromBytesAsync(bytes);
   /// print(meta.type); // AudioType.mp3
   /// ```
-  static Future<AudioMeta> fromBytesAsync(Uint8List bytes) =>
-      Isolate.run(() => AudioMeta._(bytes));
+  static Future<AudioMeta> fromBytesAsync(Uint8List bytes) async =>
+      await Future(() => AudioMeta._(bytes));
 
   /// Audio type (format) of the input
   late final AudioType type;

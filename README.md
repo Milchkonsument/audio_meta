@@ -44,7 +44,7 @@ AudioMeta.fromFile(File file)
 AudioMeta.fromPath(String path)
 AudioMeta.fromBytes(Uint8list bytes)
 
-// async (not blocking main isolate)
+// async
 AudioMeta.fromFileAsync(File file)
 AudioMeta.fromPathAsync(String path)
 AudioMeta.fromBytesAsync(Uint8list bytes)

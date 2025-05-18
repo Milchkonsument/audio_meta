@@ -1,6 +1,6 @@
 name: audio_meta
 description: pure dart, zero dependency, cross-platform audio metadata extraction library
-version: 1.0.0
+version: 1.0.1
 repo: https://github.com/Milchkonsument/audio_meta
 repository: https://github.com/Milchkonsument/audio_meta
 
