@@ -5,7 +5,7 @@ Duration _getDuration(
     switch (type) {
       AudioType.mp3 => _getMp3Duration(bytes, offset, encoding),
       AudioType.wav => _getWavDuration(bytes, offset),
-      AudioType.ogg => _getOggDuration(bytes, offset),
+      AudioType.ogg => _getOggDuration(bytes, offset, encoding),
       AudioType.flac => _getFlacDuration(bytes, offset),
       AudioType.aac => _getAacDuration(bytes, offset, encoding),
       _ => Duration.zero,
@@ -62,11 +62,18 @@ Duration _getWavDuration(Uint8List bytes, int offset) {
       : Duration.zero;
 }
 
-Duration _getOggDuration(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 14) return Duration.zero;
+Duration _getOggDuration(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.oggFlac) {
+    final flacOffset = bytes.indexOfSequence(_FLAC_HEADER_SEQUENCE, offset);
+    if (flacOffset == null) return Duration.zero;
+    return _getFlacDuration(bytes, flacOffset);
+  }
 
-  final granulePos = bytes.sublist(offset + 6, offset + 14);
-  return Duration(milliseconds: _bytesToIntILBE(granulePos) ~/ 48);
+  final bitRate = _getOggBitRate(bytes, offset, encoding);
+  if (bitRate == 0) return Duration.zero;
+  final dataSize = bytes.length - offset;
+  final durationInMs = ((dataSize * 8) / bitRate * 1000).toInt();
+  return Duration(milliseconds: durationInMs);
 }
 
 Duration _getFlacDuration(Uint8List bytes, int offset) {
@@ -93,7 +100,7 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
         (bytes[currentOffset + 2] >> 2) & 0x0F];
 
     if (sampleRate == -1) {
-      // TODO implement sample rate extraction from ADTS header for variable sample rates
+      // TODO implement sample rate extraction for custom sample rates
       continue;
     }
 

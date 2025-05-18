@@ -5,7 +5,7 @@ int _getBitRate(
     switch (type) {
       AudioType.mp3 => _getMp3BitRate(bytes, offset, encoding),
       AudioType.wav => _getWavBitRate(bytes, offset),
-      AudioType.ogg => _getOggBitRate(bytes, offset),
+      AudioType.ogg => _getOggBitRate(bytes, offset, encoding),
       AudioType.flac => _getFlacBitRate(bytes, offset),
       AudioType.aac => _getAacBitRate(bytes, offset),
       _ => 0,
@@ -54,15 +54,20 @@ int _getWavBitRate(Uint8List bytes, int offset) {
   return _bytesToIntLE(bytes.sublist(offset + 16, offset + 20)) * 8;
 }
 
-// ? works partially (no VBR support)
-int _getOggBitRate(Uint8List bytes, int offset) {
-  // vorbis
-  if (bytes.length > offset + 24) {
-    final bitRateBytes = bytes.sublist(offset + 20, offset + 24);
-    return _bytesToIntLE(bitRateBytes);
+int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
+  if (encoding == EncodingType.oggVorbis) {
+    final vorbisHeaderOffset =
+        bytes.indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
+
+    if (vorbisHeaderOffset == null) {
+      return 0;
+    }
+
+    final bitrate = _bytesToIntBE(
+        bytes.sublist(vorbisHeaderOffset + 20, vorbisHeaderOffset + 24));
+    return bitrate;
   }
 
-  // ! Ogg Opus ?
   return 0;
 }
 
