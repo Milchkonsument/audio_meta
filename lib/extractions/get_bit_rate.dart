@@ -63,8 +63,10 @@ int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
       return 0;
     }
 
-    final bitrate = _bytesToIntBE(
-        bytes.sublist(vorbisHeaderOffset + 20, vorbisHeaderOffset + 24));
+    final bitrate = ByteData.sublistView(
+            bytes, vorbisHeaderOffset + 20, vorbisHeaderOffset + 24)
+        .getInt32(0, Endian.little);
+
     return bitrate;
   }
 

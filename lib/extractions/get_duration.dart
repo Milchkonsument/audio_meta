@@ -69,10 +69,17 @@ Duration _getOggDuration(Uint8List bytes, int offset, EncodingType encoding) {
     return _getFlacDuration(bytes, flacOffset);
   }
 
-  final bitRate = _getOggBitRate(bytes, offset, encoding);
-  if (bitRate == 0) return Duration.zero;
-  final dataSize = bytes.length - offset;
-  final durationInMs = ((dataSize * 8) / bitRate * 1000).toInt();
+  final lastOggPageOffset = bytes.indexOfSequenceFromEnd('OggS'.codeUnits);
+
+  if (lastOggPageOffset == null) return Duration.zero;
+
+  int granulePosition =
+      ByteData.sublistView(bytes, lastOggPageOffset + 6, lastOggPageOffset + 14)
+          .getInt64(0, Endian.little);
+
+  int sampleRate = _getOggSampleRate(bytes, offset);
+
+  final durationInMs = (granulePosition / sampleRate * 1000).toInt();
   return Duration(milliseconds: durationInMs);
 }
 
