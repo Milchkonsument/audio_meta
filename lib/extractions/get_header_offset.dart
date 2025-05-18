@@ -16,7 +16,7 @@ part of '../audio_meta.dart';
   int searched = 0;
 
   while (offset == null) {
-    final index = bytes.indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE, searched);
+    final index = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE, searched);
 
     if (index == null) {
       break;
@@ -34,7 +34,7 @@ part of '../audio_meta.dart';
   }
 
   final xingOffset =
-      bytes.indexOfSequence(_MP3_XING_HEADER_SEQUENCE, offset, 64);
+      bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE, offset, 64);
 
   return (
     offset,
@@ -43,7 +43,7 @@ part of '../audio_meta.dart';
 }
 
 (int, EncodingType)? _getWavHeaderOffset(Uint8List bytes) {
-  final offset = bytes.indexOfSequence(_WAV_HEADER_SEQUENCE, 12);
+  final offset = bytes._indexOfSequence(_WAV_HEADER_SEQUENCE, 12);
   var encoding = EncodingType.unknown;
 
   if (offset == null) {
@@ -57,19 +57,19 @@ part of '../audio_meta.dart';
 }
 
 (int, EncodingType)? _getOggHeaderOffset(Uint8List bytes) {
-  var offset = bytes.indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
+  var offset = bytes._indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
 
   if (offset != null) {
     return (offset, EncodingType.oggVorbis);
   }
 
-  offset ??= bytes.indexOfSequence(_OGG_OPUS_HEADER_SEQUENCE);
+  offset ??= bytes._indexOfSequence(_OGG_OPUS_HEADER_SEQUENCE);
 
   if (offset != null) {
     return (offset, EncodingType.oggOpus);
   }
 
-  offset ??= bytes.indexOfSequence(_OGG_FLAC_HEADER_SEQUENCE);
+  offset ??= bytes._indexOfSequence(_OGG_FLAC_HEADER_SEQUENCE);
 
   if (offset != null) {
     return (offset, EncodingType.oggFlac);
@@ -79,7 +79,7 @@ part of '../audio_meta.dart';
 }
 
 (int, EncodingType)? _getFlacHeaderOffset(Uint8List bytes) {
-  final offset = bytes.indexOfSequence(_FLAC_HEADER_SEQUENCE);
+  final offset = bytes._indexOfSequence(_FLAC_HEADER_SEQUENCE);
 
   if (offset == null) {
     return null;
@@ -89,13 +89,13 @@ part of '../audio_meta.dart';
 }
 
 (int, EncodingType)? _getAacHeaderOffset(Uint8List bytes) {
-  var offset = bytes.indexOfSequence(_AAC_ADIF_HEADER_SEQUENCE, 0, 8);
+  var offset = bytes._indexOfSequence(_AAC_ADIF_HEADER_SEQUENCE, 0, 8);
 
   if (offset != null) {
     return (offset, EncodingType.aacAdif);
   }
 
-  offset ??= bytes.indexOfSequence(_AAC_ADTS_HEADER_SEQUENCE, 0, 8);
+  offset ??= bytes._indexOfSequence(_AAC_ADTS_HEADER_SEQUENCE, 0, 8);
 
   if (offset != null) {
     return (offset, EncodingType.aacAdts);

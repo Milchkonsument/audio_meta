@@ -40,7 +40,7 @@ Duration _estimateMp3DurationFromFrames(
       : _MP3_XING_HEADER_SEQUENCE;
 
   while (currentOffset != null) {
-    currentOffset = bytes.indexOfSequence(headerSequence, currentOffset + 4);
+    currentOffset = bytes._indexOfSequence(headerSequence, currentOffset + 4);
     frameCount++;
   }
 
@@ -49,7 +49,7 @@ Duration _estimateMp3DurationFromFrames(
 }
 
 Duration _getWavDuration(Uint8List bytes, int offset) {
-  final dataOffset = bytes.indexOfSequence('data'.codeUnits);
+  final dataOffset = bytes._indexOfSequence('data'.codeUnits);
   if (dataOffset == null) return Duration.zero;
 
   int dataSizeBits =
@@ -64,12 +64,12 @@ Duration _getWavDuration(Uint8List bytes, int offset) {
 
 Duration _getOggDuration(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.oggFlac) {
-    final flacOffset = bytes.indexOfSequence(_FLAC_HEADER_SEQUENCE, offset);
+    final flacOffset = bytes._indexOfSequence(_FLAC_HEADER_SEQUENCE, offset);
     if (flacOffset == null) return Duration.zero;
     return _getFlacDuration(bytes, flacOffset);
   }
 
-  final lastOggPageOffset = bytes.indexOfSequenceFromEnd('OggS'.codeUnits);
+  final lastOggPageOffset = bytes._indexOfSequenceFromEnd('OggS'.codeUnits);
 
   if (lastOggPageOffset == null) return Duration.zero;
 
@@ -117,7 +117,7 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
 
     final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
     milliseconds += (aacContentSizeBytes * 8 / bitrate * 1000).toInt();
-    currentOffset = bytes.indexOfSequence(
+    currentOffset = bytes._indexOfSequence(
         _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
   }
 

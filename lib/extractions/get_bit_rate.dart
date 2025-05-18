@@ -24,7 +24,7 @@ int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
     while (currentOffset != null) {
       bitRates.add(_getMp3BitRateAtFrameOffset(bytes, currentOffset));
       currentOffset =
-          bytes.indexOfSequence(_MP3_XING_HEADER_SEQUENCE, currentOffset + 8);
+          bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE, currentOffset + 8);
     }
 
     bitRates = bitRates.where((b) => b != 0).toList();
@@ -57,7 +57,7 @@ int _getWavBitRate(Uint8List bytes, int offset) {
 int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.oggVorbis) {
     final vorbisHeaderOffset =
-        bytes.indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
+        bytes._indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
 
     if (vorbisHeaderOffset == null) {
       return 0;
@@ -132,7 +132,7 @@ int _getAacBitRate(Uint8List bytes, int offset) {
 
     final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
     bitrates.add(bitrate.toInt());
-    currentOffset = bytes.indexOfSequence(
+    currentOffset = bytes._indexOfSequence(
         _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
   }
 

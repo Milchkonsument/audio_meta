@@ -1,11 +1,11 @@
 part of '../audio_meta.dart';
 
-extension Uint8ListExtensions on Uint8List {
-  int? indexOfSequence(Iterable<int> sequence,
+extension _Uint8ListExtensions on Uint8List {
+  int? _indexOfSequence(Iterable<int> sequence,
       [int start = 0, int limit = 256]) {
     final end = min(length - sequence.length, start + limit);
     for (int i = start; i <= end; i++) {
-      if (sublist(i, i + sequence.length).equals(sequence)) {
+      if (sublist(i, i + sequence.length)._equals(sequence)) {
         return i;
       }
     }
@@ -13,9 +13,9 @@ extension Uint8ListExtensions on Uint8List {
     return null;
   }
 
-  int? indexOfSequenceFromEnd(Iterable<int> sequence, [int start = 0]) {
+  int? _indexOfSequenceFromEnd(Iterable<int> sequence) {
     for (int i = length - sequence.length - 1; i >= 0; i--) {
-      if (sublist(i, i + sequence.length).equals(sequence)) {
+      if (sublist(i, i + sequence.length)._equals(sequence)) {
         return i;
       }
     }
@@ -23,7 +23,7 @@ extension Uint8ListExtensions on Uint8List {
     return null;
   }
 
-  bool equals(Iterable<int> other) {
+  bool _equals(Iterable<int> other) {
     if (length != other.length) return false;
 
     final iter = other.iterator;
