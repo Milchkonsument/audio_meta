@@ -1,11 +1,12 @@
-### audio_meta: Leightweight Audio Metadata Extraction
+### audio_meta: Leightweight Audio Information Extraction
+> This package _does not_ extract audio metadata like ID3 tags (e.g. Label, Release Year). This package _does_ extract information about the audio stream, like duration or bit rate. The package name might be a bit misleading, so this is just for clarification.
 
 <a href="https://www.paypal.com/donate/?hosted_button_id=T4TYU28529KSL"><img src="https://raw.githubusercontent.com/andreostrovsky/donate-with-paypal/925c5a9e397363c6f7a477973fdeed485df5fdd9/blue.svg" height="38"/></a>&nbsp;<a href="https://ko-fi.com/S6S7SIR1N"><img src="https://ko-fi.com/img/githubbutton_sm.svg" height="38"/></a>
 
 * 💯 100% cross-platform
 * 💯 100% pure dart
 * 🙅‍♂️ 0 dependencies
-* ✅ Uniform metadata for all audio file types
+* ✅ Uniform audio information for all file types
 * ✅ No need for external tools like ffprobe
 
 ### Current Support For:
