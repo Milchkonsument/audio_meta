@@ -1,17 +1,19 @@
-# audio_meta
-### Lightweight audio metadata extraction library.
+### audio_meta: Leightweight Audio Metadata Extraction
+
+<a href="https://www.paypal.com/donate/?hosted_button_id=T4TYU28529KSL"><img src="https://raw.githubusercontent.com/andreostrovsky/donate-with-paypal/925c5a9e397363c6f7a477973fdeed485df5fdd9/blue.svg" height="38"/></a>&nbsp;<a href="https://ko-fi.com/S6S7SIR1N"><img src="https://ko-fi.com/img/githubbutton_sm.svg" height="38"/></a>
 
 * 💯 100% cross-platform
 * 💯 100% pure dart
 * 🙅‍♂️ 0 dependencies
 * ✅ Uniform metadata for all audio file types
+* ✅ No need for external tools like ffprobe
 
 ### Current Support For:
-* 🔊 mp3
-* 🔊 wav
-* 🔊 aac
-* 🔊 ogg
-* 🔊 flac
+* ✅ mp3
+* ✅ wav
+* ✅ aac
+* ✅ ogg (✅ vorbis 🚧 opus 🚧 speex)
+* ✅ flac
 * 🚧 m4a
 * 🚧 wma
 * 🚧 mp4
@@ -63,13 +65,13 @@ print(meta.duration); // Duration(seconds: 180)
 ## Example Project
 An example project can be found in the `example` folder of the repository.
 
+## Notice
+This package is still under active development and might contain a variety of bugs,
+especially for less common encodings. 
+
 ## FAQ
 Nothing here yet!
 
 ## Contribution
-Feel free to support me and work on open issues by making a pull request.
-
-## Consider Donating
-I'd be really grateful if you could support my work. Thanks.
-[ko-fi](https://ko-fi.com/milchkonsument)
-[paypal](https://www.paypal.com/paypalme/Milchbub)
+Feel free to support me and work on open issues by making a pull request,
+or making a feature request / openining an issue.

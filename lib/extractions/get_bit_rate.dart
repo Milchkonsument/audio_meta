@@ -70,6 +70,8 @@ int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
     return bitrate;
   }
 
+  // TODO opus, speex
+
   return 0;
 }
 
