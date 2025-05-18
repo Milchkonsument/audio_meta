@@ -33,12 +33,12 @@ dart pub add audio_meta
 ```
 
 ### Include in Project
-```
+```dart
 import 'package:audio_meta/audio_meta.dart';
 ```
 
 ### Constructors
-```
+```dart
 // sync
 AudioMeta.fromFile(File file)
 AudioMeta.fromPath(String path)
@@ -51,7 +51,7 @@ AudioMeta.fromBytesAsync(Uint8list bytes)
 ```
 
 ### Basic Example
-```
+```dart
 import 'dart:io';
 import 'package:audio_meta/audio_meta.dart';
 
