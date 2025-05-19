@@ -9,7 +9,6 @@ part 'constants.dart';
 part 'conversion.dart';
 part 'extensions.dart';
 part 'extractions/get_header_offset.dart';
-part 'extractions/get_type.dart';
 part 'extractions/get_sample_rate.dart';
 part 'extractions/get_bit_rate.dart';
 part 'extractions/get_duration.dart';
@@ -36,24 +35,21 @@ part 'extractions/get_bit_depth.dart';
 /// ```
 final class AudioMeta {
   AudioMeta._(Uint8List bytes) {
-    final type = _getType(bytes);
+    final offsetTypeAndEncoding = _getHeaderOffsetTypeAndEncoding(bytes);
 
-    if (type == null) {
-      throw ExtractionException('Audio type not supported.');
+    print(offsetTypeAndEncoding);
+
+    if (offsetTypeAndEncoding == null) {
+      throw ExtractionException('Unsupported audio type');
     }
 
-    final offsetAndEncoding = _getHeaderOffsetAndEncoding(bytes, type);
-
-    if (offsetAndEncoding == null) {
-      throw ExtractionException(
-          'No viable frame header found for ${type.name} file.');
-    }
-
-    final offset = offsetAndEncoding.$1;
-    final encoding = offsetAndEncoding.$2;
+    final offset = offsetTypeAndEncoding.$1;
+    final type = offsetTypeAndEncoding.$2;
+    final encoding = offsetTypeAndEncoding.$3;
 
     this.type = type;
     this.encoding = encoding;
+
     sampleRate = _getSampleRate(bytes, type, offset, encoding);
     bitRate = _getBitRate(bytes, type, offset, encoding);
     duration = _getDuration(bytes, type, offset, encoding);

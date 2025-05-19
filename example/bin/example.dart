@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:audio_meta/audio_meta.dart';
 
 void main(List<String> arguments) {
   final time = DateTime.now();
+  final Directory dir = Directory('./files/');
 
-  for (var type in AudioType.values) {
-    if (type == AudioType.unknown) continue;
+  for (final f in dir.listSync()) {
+    if (f is! File) continue;
+
     final timeSingle = DateTime.now();
-    print(AudioMeta.fromPath('files/example.${type.name}'));
+    print('File: ${f.path}');
+    print(AudioMeta.fromFile(f));
     print(
         'Elapsed: ${DateTime.now().difference(timeSingle).inMilliseconds} ms\n');
   }

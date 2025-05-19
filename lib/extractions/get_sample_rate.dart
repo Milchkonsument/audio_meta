@@ -52,15 +52,9 @@ int _getFlacSampleRate(Uint8List bytes, int offset) {
 
 // works
 int _getAacSampleRate(Uint8List bytes, int offset) {
-  if (bytes.length < 3) {
-    return 0;
-  }
+  if (bytes.length < offset + 4) return 0;
 
-  final sampleRateIndex = (bytes[2] & 0x3C) >> 2;
-  if (sampleRateIndex >= 0 &&
-      sampleRateIndex < _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX.length) {
-    return _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[sampleRateIndex];
-  }
+  int sampleRateIndex = (bytes[offset + 2] >> 2) & 0x0F;
 
-  return 0;
+  return _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[sampleRateIndex];
 }

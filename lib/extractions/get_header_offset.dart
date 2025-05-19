@@ -1,48 +1,44 @@
 part of '../audio_meta.dart';
 
-(int, EncodingType)? _getHeaderOffsetAndEncoding(
-        Uint8List bytes, AudioType type) =>
-    (switch (type) {
-      AudioType.mp3 => _getMp3HeaderOffset,
-      AudioType.wav => _getWavHeaderOffset,
-      AudioType.ogg => _getOggHeaderOffset,
-      AudioType.flac => _getFlacHeaderOffset,
-      AudioType.aac => _getAacHeaderOffset,
-      _ => (_) => null,
-    })(bytes);
+(int, AudioType, EncodingType)? _getHeaderOffsetTypeAndEncoding(
+    Uint8List bytes) {
+  return _getFlacHeaderOffset(bytes) ??
+      _getMp3HeaderOffset(bytes) ??
+      _getWavHeaderOffset(bytes) ??
+      _getOggHeaderOffset(bytes) ??
+      _getAacHeaderOffset(bytes);
+}
 
-(int, EncodingType)? _getMp3HeaderOffset(Uint8List bytes) {
-  int? offset;
-  int searched = 0;
+(int, AudioType, EncodingType)? _getMp3HeaderOffset(Uint8List bytes) {
+  var offset = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE);
 
-  while (offset == null) {
-    final index = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE, searched);
+  if (offset == null) {
+    return null;
+  }
 
-    if (index == null) {
-      break;
-    }
+  if (bytes[offset + 1] & 0xE0 == 0xE0) {
+    
+  }
 
-    if (bytes[index + 1] & 0xE0 == 0xE0) {
-      offset = index;
-    }
+  bool isXingHeader = false;
 
-    searched = index;
+  if (offset == null) {
+    offset = bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE);
+    isXingHeader = true;
   }
 
   if (offset == null) {
     return null;
   }
 
-  final xingOffset =
-      bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE, offset, 64);
-
   return (
     offset,
-    xingOffset == null ? EncodingType.mp3Cbr : EncodingType.mp3Vbr
+    AudioType.mp3,
+    isXingHeader ? EncodingType.mp3Vbr : EncodingType.mp3Cbr
   );
 }
 
-(int, EncodingType)? _getWavHeaderOffset(Uint8List bytes) {
+(int, AudioType, EncodingType)? _getWavHeaderOffset(Uint8List bytes) {
   final offset = bytes._indexOfSequence(_WAV_HEADER_SEQUENCE, 12);
   var encoding = EncodingType.unknown;
 
@@ -53,52 +49,52 @@ part of '../audio_meta.dart';
   final formatCode = _bytesToIntLE(bytes.sublist(offset + 8, offset + 10));
   encoding = _WAV_FORMAT_CODES[formatCode] ?? EncodingType.unknown;
 
-  return (offset, encoding);
+  return (offset, AudioType.wav, encoding);
 }
 
-(int, EncodingType)? _getOggHeaderOffset(Uint8List bytes) {
+(int, AudioType, EncodingType)? _getOggHeaderOffset(Uint8List bytes) {
   var offset = bytes._indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
 
   if (offset != null) {
-    return (offset, EncodingType.oggVorbis);
+    return (offset, AudioType.ogg, EncodingType.oggVorbis);
   }
 
   offset ??= bytes._indexOfSequence(_OGG_OPUS_HEADER_SEQUENCE);
 
   if (offset != null) {
-    return (offset, EncodingType.oggOpus);
+    return (offset, AudioType.ogg, EncodingType.oggOpus);
   }
 
   offset ??= bytes._indexOfSequence(_OGG_FLAC_HEADER_SEQUENCE);
 
   if (offset != null) {
-    return (offset, EncodingType.oggFlac);
+    return (offset, AudioType.ogg, EncodingType.oggFlac);
   }
 
   return null;
 }
 
-(int, EncodingType)? _getFlacHeaderOffset(Uint8List bytes) {
+(int, AudioType, EncodingType)? _getFlacHeaderOffset(Uint8List bytes) {
   final offset = bytes._indexOfSequence(_FLAC_HEADER_SEQUENCE);
 
   if (offset == null) {
     return null;
   }
 
-  return (offset, EncodingType.flac);
+  return (offset, AudioType.flac, EncodingType.flac);
 }
 
-(int, EncodingType)? _getAacHeaderOffset(Uint8List bytes) {
-  var offset = bytes._indexOfSequence(_AAC_ADIF_HEADER_SEQUENCE, 0, 8);
+(int, AudioType, EncodingType)? _getAacHeaderOffset(Uint8List bytes) {
+  var offset = bytes._indexOfSequence(_AAC_ADIF_HEADER_SEQUENCE);
 
   if (offset != null) {
-    return (offset, EncodingType.aacAdif);
+    return (offset, AudioType.aac, EncodingType.aacAdif);
   }
 
-  offset ??= bytes._indexOfSequence(_AAC_ADTS_HEADER_SEQUENCE, 0, 8);
+  offset ??= bytes._indexOfSequence(_AAC_ADTS_HEADER_SEQUENCE);
 
   if (offset != null) {
-    return (offset, EncodingType.aacAdts);
+    return (offset, AudioType.aac, EncodingType.aacAdts);
   }
 
   return null;
