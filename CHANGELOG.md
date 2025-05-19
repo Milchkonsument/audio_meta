@@ -8,3 +8,7 @@
 
 ## 1.0.2
 - Updated readme to clarify package usage
+
+## 1.0.3
+- Audio type & encoding extraction now single pass
+- Updated readme disclaimer to show early development status
