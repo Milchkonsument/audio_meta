@@ -11,15 +11,6 @@ part of '../audio_meta.dart';
 
 (int, AudioType, EncodingType)? _getMp3HeaderOffset(Uint8List bytes) {
   var offset = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE);
-
-  if (offset == null) {
-    return null;
-  }
-
-  if (bytes[offset + 1] & 0xE0 == 0xE0) {
-    
-  }
-
   bool isXingHeader = false;
 
   if (offset == null) {
