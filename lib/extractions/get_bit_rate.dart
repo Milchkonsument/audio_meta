@@ -11,7 +11,6 @@ int _getBitRate(
       _ => 0,
     };
 
-// works, although VBR is a little rough around the edges (inaccurate)
 int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.mp3Cbr) {
     return _getMp3BitRateAtFrameOffset(bytes, offset);
@@ -45,7 +44,6 @@ int _getMp3BitRateAtFrameOffset(Uint8List bytes, int offset) {
       1000;
 }
 
-// works
 int _getWavBitRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 20) {
     return 0;
@@ -75,7 +73,6 @@ int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
   return 0;
 }
 
-// works
 int _getFlacBitRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 26) return 0;
 

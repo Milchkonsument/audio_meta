@@ -12,3 +12,6 @@
 ## 1.0.3
 - Audio type & encoding extraction now single pass
 - Updated readme disclaimer to show early development status
+
+### 1.1.0
+- Fixed grave bugs distinguishing encodings on header sync words

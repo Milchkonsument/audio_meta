@@ -3,8 +3,8 @@ part of '../audio_meta.dart';
 (int, AudioType, EncodingType)? _getHeaderOffsetTypeAndEncoding(
     Uint8List bytes) {
   return _getFlacHeaderOffset(bytes) ??
-      _getMp3HeaderOffset(bytes) ??
       _getWavHeaderOffset(bytes) ??
+      _getMp3HeaderOffset(bytes) ??
       _getOggHeaderOffset(bytes) ??
       _getAacHeaderOffset(bytes);
 }
@@ -12,6 +12,18 @@ part of '../audio_meta.dart';
 (int, AudioType, EncodingType)? _getMp3HeaderOffset(Uint8List bytes) {
   var offset = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE);
   bool isXingHeader = false;
+
+  // distinguish MPEG-MP3 header from MPEG-AAC header
+  if (offset != null) {
+    final b1 = bytes[offset + 1];
+    final layerIndex = (b1 >> 1) & 0x03;
+    final bitrateIndex = (bytes[offset + 2] >> 4) & 0x0F;
+    final sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
+
+    if (layerIndex == 0 || bitrateIndex == 0x0F || sampleRateIndex == 0x03) {
+      return null;
+    }
+  }
 
   if (offset == null) {
     offset = bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE);

@@ -50,11 +50,17 @@ final class AudioMeta {
     this.type = type;
     this.encoding = encoding;
 
+    print('encoding: $encoding');
     sampleRate = _getSampleRate(bytes, type, offset, encoding);
+    print('sampleRate: $sampleRate');
     bitRate = _getBitRate(bytes, type, offset, encoding);
+    print('bitRate: $bitRate');
     duration = _getDuration(bytes, type, offset, encoding);
+    print('duration: $duration');
     channelCount = _getChannelCount(bytes, type, offset, encoding);
+    print('channelCount: $channelCount');
     bitDepth = _getBitDepth(bytes, type, offset, encoding);
+    print('bitDepth: $bitDepth');
   }
 
   /// Create an instance of [AudioMeta] from a [File].
