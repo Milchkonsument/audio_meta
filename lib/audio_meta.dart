@@ -3,7 +3,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:audio_meta/exceptions.dart';
-import 'package:audio_meta/impl/impl.dart' as impl;
+import 'package:audio_meta/impl/impl_io.dart'
+    if (dart.library.html) 'impl/impl_web.dart' as impl;
 
 part 'enums.dart';
 part 'constants.dart';

@@ -23,3 +23,6 @@
 - Improved extraction speed through seek offsets
 - Deleted deprecated source files
 - Updated readme
+
+### 1.1.2
+- Added web support (frfr)
