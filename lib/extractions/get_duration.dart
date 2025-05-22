@@ -28,6 +28,8 @@ Duration _getMp3Duration(Uint8List bytes, int offset, EncodingType encoding) {
 
 Duration _estimateMp3DurationFromFrames(
     Uint8List bytes, int offset, EncodingType encoding) {
+  if (bytes.length < offset + 5) return Duration.zero;
+
   final versionIndex = (bytes[offset + 1] >> 3) & 0x03;
   final samplesPerFrame =
       _MP3_SAMPLES_PER_FRAME_BY_VERSION_INDEX[versionIndex]!;
@@ -40,7 +42,8 @@ Duration _estimateMp3DurationFromFrames(
       : _MP3_XING_HEADER_SEQUENCE;
 
   while (currentOffset != null) {
-    currentOffset = bytes._indexOfSequence(headerSequence, currentOffset + 4);
+    currentOffset =
+        bytes._indexOfSequence(headerSequence, currentOffset + 4, 256);
     frameCount++;
   }
 
@@ -51,6 +54,8 @@ Duration _estimateMp3DurationFromFrames(
 Duration _getWavDuration(Uint8List bytes, int offset) {
   final dataOffset = bytes._indexOfSequence('data'.codeUnits);
   if (dataOffset == null) return Duration.zero;
+
+  if (bytes.length < dataOffset + 8) return Duration.zero;
 
   int dataSizeBits =
       _bytesToIntILBE(bytes.sublist(dataOffset + 4, dataOffset + 8)) * 8;
@@ -72,6 +77,8 @@ Duration _getOggDuration(Uint8List bytes, int offset, EncodingType encoding) {
   final lastOggPageOffset = bytes._indexOfSequenceFromEnd('OggS'.codeUnits);
 
   if (lastOggPageOffset == null) return Duration.zero;
+
+  if (bytes.length < lastOggPageOffset + 14) return Duration.zero;
 
   int granulePosition =
       ByteData.sublistView(bytes, lastOggPageOffset + 6, lastOggPageOffset + 14)

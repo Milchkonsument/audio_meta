@@ -13,6 +13,7 @@ int _getChannelCount(
 
 int _getAacChannelCount(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.aacAdts) {
+    if (bytes.length < offset + 4) return 0;
     final byte0 = bytes[offset + 2];
     final byte1 = bytes[offset + 3];
     return ((byte0 & 0x1) << 2) | ((byte1 & 0xC0) >> 6);
@@ -42,14 +43,17 @@ int _getOggChannelCount(Uint8List bytes, int offset, EncodingType encoding) {
   }
 
   if (encoding == EncodingType.oggOpus) {
+    if (bytes.length < offset + 10) return 0;
     return bytes[offset + 9] & 0x1 == 1 ? 2 : 1;
   }
 
   if (encoding == EncodingType.oggVorbis) {
+    if (bytes.length < offset + 12) return 0;
     return bytes[offset + 11];
   }
 
   if (encoding == EncodingType.oggSpeex) {
+    if (bytes.length < offset + 35) return 0;
     return bytes[offset + 34];
   }
 
@@ -57,13 +61,13 @@ int _getOggChannelCount(Uint8List bytes, int offset, EncodingType encoding) {
 }
 
 int _getWavChannelCount(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 11) return 0;
+  if (bytes.length < offset + 13) return 0;
 
   return _bytesToIntLE(bytes.sublist(offset + 10, offset + 12));
 }
 
 int _getMp3ChannelCount(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 3) return 0;
+  if (bytes.length < offset + 4) return 0;
   final byte = bytes[offset + 3];
   return (byte >> 6) & 0x3 == 0x3 ? 1 : 2;
 }

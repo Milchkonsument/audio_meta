@@ -37,7 +37,7 @@ int? _getOggBitDepth(Uint8List bytes, int offset, EncodingType encoding) {
 }
 
 int _getWavBitDepth(Uint8List bytes, int offset) {
-  if (bytes.length < offset + 23) return 0;
+  if (bytes.length < offset + 24) return 0;
 
   final byte16 = bytes[offset + 22];
   final byte17 = bytes[offset + 23];

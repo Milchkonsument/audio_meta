@@ -23,14 +23,12 @@ int _getMp3SampleRate(Uint8List bytes, int offset, EncodingType encoding) {
       0;
 }
 
-// works
 int _getWavSampleRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 16) return 0;
   final sampleRateBytes = bytes.sublist(offset + 12, offset + 16);
   return _bytesToIntLE(sampleRateBytes);
 }
 
-// works
 int _getOggSampleRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 16) return 0;
 
@@ -38,7 +36,6 @@ int _getOggSampleRate(Uint8List bytes, int offset) {
   return _bytesToIntLE(sampleRateBytes);
 }
 
-// works
 int _getFlacSampleRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 20) return 0;
 
@@ -50,7 +47,6 @@ int _getFlacSampleRate(Uint8List bytes, int offset) {
   return sampleRate;
 }
 
-// works
 int _getAacSampleRate(Uint8List bytes, int offset) {
   if (bytes.length < offset + 4) return 0;
 

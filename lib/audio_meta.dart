@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:audio_meta/exceptions.dart';
+import 'package:audio_meta/impl/impl.dart' as impl;
 
 part 'enums.dart';
 part 'constants.dart';
@@ -37,8 +38,6 @@ final class AudioMeta {
   AudioMeta._(Uint8List bytes) {
     final offsetTypeAndEncoding = _getHeaderOffsetTypeAndEncoding(bytes);
 
-    print(offsetTypeAndEncoding);
-
     if (offsetTypeAndEncoding == null) {
       throw ExtractionException('Unsupported audio type');
     }
@@ -50,20 +49,23 @@ final class AudioMeta {
     this.type = type;
     this.encoding = encoding;
 
-    print('encoding: $encoding');
+    print('Audio type: $type');
+    print('Audio encoding: $encoding');
     sampleRate = _getSampleRate(bytes, type, offset, encoding);
-    print('sampleRate: $sampleRate');
+    print('Audio sample rate: $sampleRate');
     bitRate = _getBitRate(bytes, type, offset, encoding);
-    print('bitRate: $bitRate');
+    print('Audio bit rate: $bitRate');
     duration = _getDuration(bytes, type, offset, encoding);
-    print('duration: $duration');
+    print('Audio duration: $duration');
     channelCount = _getChannelCount(bytes, type, offset, encoding);
-    print('channelCount: $channelCount');
+    print('Audio channel count: $channelCount');
     bitDepth = _getBitDepth(bytes, type, offset, encoding);
-    print('bitDepth: $bitDepth');
+    print('Audio bit depth: $bitDepth');
   }
 
   /// Create an instance of [AudioMeta] from a [File].
+  ///
+  /// This constructor is unsupported on web.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
@@ -75,10 +77,11 @@ final class AudioMeta {
   /// final meta = AudioMeta.fromFile(File('audio.mp3'));
   /// print(meta.type); // AudioType.mp3
   /// ```
-  factory AudioMeta.fromFile(File file) =>
-      AudioMeta.fromBytes(file.readAsBytesSync());
+  factory AudioMeta.fromFile(File file) => impl.fromFileImpl(file);
 
   /// Create an instance of [AudioMeta] from a file at the given [path].
+  ///
+  /// This constructor is unsupported on web.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
@@ -90,9 +93,11 @@ final class AudioMeta {
   /// final meta = AudioMeta.fromPath('audio.mp3');
   /// print(meta.type); // AudioType.mp3
   /// ```
-  factory AudioMeta.fromPath(String path) => AudioMeta.fromFile(File(path));
+  factory AudioMeta.fromPath(String path) => impl.fromPathImpl(path);
 
   /// Create an instance of [AudioMeta] from given [bytes].
+  ///
+  /// This constructor is supported on web.
   ///
   /// Throws an [ExtractionException] if any error occurs during extraction
   /// of metadata.
@@ -108,6 +113,8 @@ final class AudioMeta {
 
   /// Create an instance of [AudioMeta] from a [File] asynchronously.
   ///
+  /// This constructor is unsupported on web.
+  ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
   /// Throws an [ExtractionException] if any error occurs during extraction
@@ -119,11 +126,13 @@ final class AudioMeta {
   /// final meta = await AudioMeta.fromFileAsync(file);
   /// print(meta.type); // AudioType.mp3
   /// ```
-  static Future<AudioMeta> fromFileAsync(File file) async =>
-      await AudioMeta.fromBytesAsync(await file.readAsBytes());
+  static Future<AudioMeta> fromFileAsync(File file) =>
+      impl.fromFileAsyncImpl(file);
 
   /// Create an instance of [AudioMeta] from a file
   /// at the given [path] asynchronously.
+  ///
+  /// This constructor is unsupported on web.
   ///
   /// Throws a [FileSystemException] if the file does not exist.
   ///
@@ -135,10 +144,12 @@ final class AudioMeta {
   /// final meta = await AudioMeta.fromPathAsync('audio.mp3');
   /// print(meta.type); // AudioType.mp3
   /// ```
-  static Future<AudioMeta> fromPathAsync(String path) async =>
-      await AudioMeta.fromFileAsync(File(path));
+  static Future<AudioMeta> fromPathAsync(String path) =>
+      impl.fromPathAsyncImpl(path);
 
   /// Create an instance of [AudioMeta] from given [bytes] asynchronously.
+  ///
+  /// This constructor is supported on web.
   ///
   /// Throws an [ExtractionException] if any error occurs during extraction
   /// of metadata.
@@ -151,9 +162,9 @@ final class AudioMeta {
   /// print(meta.type); // AudioType.mp3
   /// ```
   static Future<AudioMeta> fromBytesAsync(Uint8List bytes) async =>
-      await Future(() => AudioMeta._(bytes));
+      AudioMeta._(bytes);
 
-  /// Audio type (format) of the input
+  /// Audio file type
   late final AudioType type;
 
   /// Audio encoding type

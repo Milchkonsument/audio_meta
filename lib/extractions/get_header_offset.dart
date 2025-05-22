@@ -10,34 +10,35 @@ part of '../audio_meta.dart';
 }
 
 (int, AudioType, EncodingType)? _getMp3HeaderOffset(Uint8List bytes) {
-  var offset = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE);
-  bool isXingHeader = false;
+  var mpegOffset = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE);
+  var xingOffset = bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE);
+
+  if (mpegOffset == null) {
+    return null;
+  }
+
+  if (xingOffset != null) {
+    return (
+      mpegOffset,
+      AudioType.mp3,
+      EncodingType.mp3Vbr,
+    );
+  }
 
   // distinguish MPEG-MP3 header from MPEG-AAC header
-  if (offset != null) {
-    final b1 = bytes[offset + 1];
-    final layerIndex = (b1 >> 1) & 0x03;
-    final bitrateIndex = (bytes[offset + 2] >> 4) & 0x0F;
-    final sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
+  final b1 = bytes[mpegOffset + 1];
+  final layerIndex = (b1 >> 1) & 0x03;
+  final bitrateIndex = (bytes[mpegOffset + 2] >> 4) & 0x0F;
+  final sampleRateIndex = (bytes[mpegOffset + 2] >> 2) & 0x03;
 
-    if (layerIndex == 0 || bitrateIndex == 0x0F || sampleRateIndex == 0x03) {
-      return null;
-    }
-  }
-
-  if (offset == null) {
-    offset = bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE);
-    isXingHeader = true;
-  }
-
-  if (offset == null) {
+  if (layerIndex == 0 || bitrateIndex == 0x0F || sampleRateIndex == 0x03) {
     return null;
   }
 
   return (
-    offset,
+    mpegOffset,
     AudioType.mp3,
-    isXingHeader ? EncodingType.mp3Vbr : EncodingType.mp3Cbr
+    EncodingType.mp3Cbr,
   );
 }
 
