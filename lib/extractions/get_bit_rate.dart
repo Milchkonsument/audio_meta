@@ -17,16 +17,24 @@ int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
   }
 
   if (encoding == EncodingType.mp3Vbr) {
+    final versionIndex = (bytes[offset + 1] >> 3) & 0x03;
+    final sampleRate = _getMp3SampleRate(bytes, offset, encoding);
+    final layerIndex = (bytes[offset + 1] >> 1) & 0x03;
+    final coefficient =
+        _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX[
+                layerIndex]?[versionIndex] ??
+            0;
     var bitRates = <int>[];
     int? currentOffset = offset;
 
     while (currentOffset != null) {
-      bitRates.add(_getMp3BitRateAtFrameOffset(bytes, currentOffset));
+      final bitRate = _getMp3BitRateAtFrameOffset(bytes, currentOffset);
+      final frameSizeWithoutPadding =
+          ((coefficient * bitRate) / sampleRate).toInt();
+      bitRates.add(bitRate);
       currentOffset = bytes._indexOfSequence(
-          _MP3_MPEG_HEADER_SEQUENCE, currentOffset + 512);
+          _MP3_MPEG_HEADER_SEQUENCE, currentOffset + frameSizeWithoutPadding);
     }
-
-    bitRates = bitRates.where((b) => b != 0).toList();
 
     if (bitRates.isEmpty) {
       return 0;

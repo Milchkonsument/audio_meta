@@ -14,7 +14,7 @@ Duration _getDuration(
 Duration _getMp3Duration(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.mp3Cbr) {
     final bitrate = _getMp3BitRate(bytes, offset, encoding);
-    final fileSizeBits = bytes.length * 8;
+    final fileSizeBits = (bytes.length * 8) - (offset * 8);
     final durationMs = fileSizeBits / bitrate * 1000;
     return Duration(milliseconds: durationMs.toInt());
   }
@@ -31,24 +31,32 @@ Duration _estimateMp3DurationFromFrames(
   if (bytes.length < offset + 5) return Duration.zero;
 
   final versionIndex = (bytes[offset + 1] >> 3) & 0x03;
-  final samplesPerFrame =
-      _MP3_SAMPLES_PER_FRAME_BY_VERSION_INDEX[versionIndex]!;
   final sampleRate = _getMp3SampleRate(bytes, offset, encoding);
+  final layerIndex = (bytes[offset + 1] >> 1) & 0x03;
+  final coefficient =
+      _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX[layerIndex]
+              ?[versionIndex] ??
+          0;
+  final samplesPerFrame =
+      _MP3_SAMPLES_PER_FRAME_BY_LAYER_AND_VERSION_INDEX[layerIndex]
+              ?[versionIndex] ??
+          0;
 
-  var frameCount = 0;
   int? currentOffset = offset;
-  final headerSequence = encoding == EncodingType.mp3Cbr
-      ? _MP3_MPEG_HEADER_SEQUENCE
-      : _MP3_XING_HEADER_SEQUENCE;
+  int dur = 0;
 
   while (currentOffset != null) {
-    currentOffset =
-        bytes._indexOfSequence(headerSequence, currentOffset + 4, 256);
-    frameCount++;
+    final bitRate = _getMp3BitRateAtFrameOffset(bytes, currentOffset);
+    final frameSizeWithoutPadding =
+        ((coefficient * bitRate) / sampleRate).toInt();
+    final durationInMs = ((samplesPerFrame / sampleRate) * 1000).toInt();
+    dur += durationInMs;
+
+    currentOffset = bytes._indexOfSequence(
+        _MP3_MPEG_HEADER_SEQUENCE, currentOffset + frameSizeWithoutPadding);
   }
 
-  final durationInMs = frameCount * samplesPerFrame / sampleRate * 8 * 100000;
-  return Duration(milliseconds: durationInMs.round());
+  return Duration(milliseconds: dur);
 }
 
 Duration _getWavDuration(Uint8List bytes, int offset) {

@@ -202,10 +202,44 @@ const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
   -1,
 ];
 
-// 1152 samples per frame (MPEG-1), 576 for MPEG-2/2.5
-const _MP3_SAMPLES_PER_FRAME_BY_VERSION_INDEX = {
-  0: 576,
-  1: 0,
-  2: 576,
-  3: 1152,
+const _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX = {
+  3: {
+    // Layer I
+    3: 48, // MPEG-1: 384 / 8
+    2: 48, // MPEG-2: 384 / 8
+    0: 48, // MPEG-2.5: 384 / 8
+  },
+  2: {
+    // Layer II
+    3: 144, // MPEG-1: 1152 / 8
+    2: 144, // MPEG-2: 1152 / 8
+    0: 144, // MPEG-2.5: 1152 / 8
+  },
+  1: {
+    // Layer III
+    3: 144, // MPEG-1: 1152 / 8
+    2: 72, // MPEG-2: 576 / 8
+    0: 72, // MPEG-2.5: 576 / 8
+  },
+};
+
+const _MP3_SAMPLES_PER_FRAME_BY_LAYER_AND_VERSION_INDEX = {
+  3: {
+    // Layer I
+    3: 384, // MPEG-1
+    2: 384, // MPEG-2
+    0: 384, // MPEG-2.5
+  },
+  2: {
+    // Layer II
+    3: 1152, // MPEG-1
+    2: 1152, // MPEG-2
+    0: 1152, // MPEG-2.5
+  },
+  1: {
+    // Layer III
+    3: 1152, // MPEG-1
+    2: 576, // MPEG-2
+    0: 576, // MPEG-2.5
+  },
 };

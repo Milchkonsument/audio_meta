@@ -50,11 +50,35 @@ final class AudioMeta {
     this.type = type;
     this.encoding = encoding;
 
-    sampleRate = _getSampleRate(bytes, type, offset, encoding);
-    bitRate = _getBitRate(bytes, type, offset, encoding);
-    duration = _getDuration(bytes, type, offset, encoding);
-    channelCount = _getChannelCount(bytes, type, offset, encoding);
-    bitDepth = _getBitDepth(bytes, type, offset, encoding);
+    void _timed(String name, void Function() action) {
+      print(name);
+      final now = DateTime.now();
+      action();
+      final elapsed = DateTime.now().difference(now);
+      print('Elapsed: ${elapsed.inMilliseconds} ms');
+    }
+
+    _timed('Extracting sample rate', () {
+      sampleRate = _getSampleRate(bytes, type, offset, encoding);
+    });
+    _timed('Extracting bit rate', () {
+      bitRate = _getBitRate(bytes, type, offset, encoding);
+    });
+    _timed('Extracting duration', () {
+      duration = _getDuration(bytes, type, offset, encoding);
+    });
+    _timed('Extracting channel count', () {
+      channelCount = _getChannelCount(bytes, type, offset, encoding);
+    });
+    _timed('Extracting bit depth', () {
+      bitDepth = _getBitDepth(bytes, type, offset, encoding);
+    });
+
+    // sampleRate = _getSampleRate(bytes, type, offset, encoding);
+    // bitRate = _getBitRate(bytes, type, offset, encoding);
+    // duration = _getDuration(bytes, type, offset, encoding);
+    // channelCount = _getChannelCount(bytes, type, offset, encoding);
+    // bitDepth = _getBitDepth(bytes, type, offset, encoding);
   }
 
   /// Create an instance of [AudioMeta] from a [File].
