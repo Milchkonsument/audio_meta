@@ -24,5 +24,8 @@
 - Deleted deprecated source files
 - Updated readme
 
-### 1.1.2
+## 1.1.2
 - Added web support (frfr)
+
+## 1.1.3
+- fixed inaccuracies in MP3 VBR bit rate & duration extraction
