@@ -10,8 +10,9 @@ part of '../audio_meta.dart';
 }
 
 (int, AudioType, EncodingType)? _getMp3HeaderOffset(Uint8List bytes) {
-  var mpegOffset = bytes._indexOfSequence(_MP3_MPEG_HEADER_SEQUENCE);
-  var xingOffset = bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE);
+  final mpegOffset = bytes._indexOfSequence(
+      _MP3_MPEG_HEADER_SEQUENCE, 0, 16384); // higher limit cuz of ID3 tags
+  final xingOffset = bytes._indexOfSequence(_MP3_XING_HEADER_SEQUENCE);
 
   if (mpegOffset == null) {
     return null;

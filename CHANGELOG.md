@@ -29,3 +29,7 @@
 
 ## 1.1.3
 - fixed inaccuracies in MP3 VBR bit rate & duration extraction
+
+## 1.1.4
+- fixed sync word search byte limit issue with MP3 ID3 tags
+ 

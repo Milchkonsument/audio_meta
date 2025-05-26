@@ -2,7 +2,7 @@
 ![License](https://img.shields.io/github/license/Milchkonsument/audio_meta)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Milchkonsument/audio_meta)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Milchkonsument/audio_meta)
-![Free PS](https://img.shields.io/badge/free%20palestine%20🇵🇸%20-DD1111)
+[![Free PS](https://img.shields.io/badge/free%20palestine%20-DD1111)](https://donate.unrwa.org/int/en/general)
 
 <a href="https://www.paypal.com/donate/?hosted_button_id=T4TYU28529KSL"><img src="https://raw.githubusercontent.com/andreostrovsky/donate-with-paypal/925c5a9e397363c6f7a477973fdeed485df5fdd9/blue.svg" height="38"/></a>&nbsp;<a href="https://ko-fi.com/S6S7SIR1N"><img src="https://ko-fi.com/img/githubbutton_sm.svg" height="38"/></a>
 
@@ -24,6 +24,7 @@
 * ✅ aac
 * ✅ ogg (✅ vorbis 🚧 opus 🚧 speex)
 * ✅ flac
+* 🚧 opus
 * 🚧 m4a
 * 🚧 wma
 * 🚧 mp4
@@ -82,7 +83,6 @@ print(meta.duration); // Duration(seconds: 180)
 
 ## Example Project
 An example project can be found in the `example` folder of the repository.
-
 
 ## FAQ
 Nothing here yet!
