@@ -1,5 +1,4 @@
 ## 1.0.0
-
 - Initial version. Support for mp3, wav, aac, ogg, flac.
 
 ## 1.0.1
@@ -32,4 +31,7 @@
 
 ## 1.1.4
 - fixed sync word search byte limit issue with MP3 ID3 tags
- 
+
+## 1.2.0
+- added OPUS / OGG OPUS support
+- fixed bug where AAC extraction would be stuck indefinitely

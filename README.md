@@ -22,9 +22,9 @@
 * ✅ mp3
 * ✅ wav
 * ✅ aac
-* ✅ ogg (✅ vorbis 🚧 opus 🚧 speex)
+* ✅ ogg
 * ✅ flac
-* 🚧 opus
+* ✅ opus
 * 🚧 m4a
 * 🚧 wma
 * 🚧 mp4

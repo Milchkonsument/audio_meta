@@ -44,7 +44,7 @@ int _getOggChannelCount(Uint8List bytes, int offset, EncodingType encoding) {
 
   if (encoding == EncodingType.oggOpus) {
     if (bytes.length < offset + 10) return 0;
-    return bytes[offset + 9] & 0x1 == 1 ? 2 : 1;
+    return bytes[offset + 9];
   }
 
   if (encoding == EncodingType.oggVorbis) {

@@ -88,7 +88,12 @@ int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
     return bitrate;
   }
 
-  // TODO opus, speex
+  if (encoding == EncodingType.oggOpus || encoding == EncodingType.oggSpeex) {
+    final bitrate = (bytes.length * 8) /
+        (_getDuration(bytes, AudioType.ogg, offset, encoding).inMilliseconds /
+            1000);
+    return bitrate.toInt();
+  }
 
   return 0;
 }
