@@ -52,5 +52,11 @@ int _getAacSampleRate(Uint8List bytes, int offset) {
 
   int sampleRateIndex = (bytes[offset + 2] >> 2) & 0x0F;
 
-  return _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[sampleRateIndex];
+  int sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[sampleRateIndex];
+
+  if (sampleRate == -1) {
+    throw UnsupportedError('AAC custom sample rates are not yet supported');
+  }
+
+  return sampleRate;
 }
