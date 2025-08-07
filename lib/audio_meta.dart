@@ -37,7 +37,13 @@ part 'extractions/get_bit_depth.dart';
 /// ```
 final class AudioMeta {
   AudioMeta._(Uint8List bytes) {
-    final offsetTypeAndEncoding = _getHeaderOffsetTypeAndEncoding(bytes);
+    (int, AudioType, EncodingType)? offsetTypeAndEncoding;
+
+    try {
+      offsetTypeAndEncoding = _getHeaderOffsetTypeAndEncoding(bytes);
+    } catch (e) {
+      throw ExtractionException('Error reading audio data: $e');
+    }
 
     if (offsetTypeAndEncoding == null) {
       throw ExtractionException('Unsupported audio type');

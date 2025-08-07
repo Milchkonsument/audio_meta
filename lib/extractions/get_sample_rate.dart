@@ -18,7 +18,7 @@ int _getMp3SampleRate(Uint8List bytes, int offset, EncodingType encoding) {
   int sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
   int versionBits = (bytes[offset + 1] >> 3) & 0x03;
 
-  return _MP3_SAMPLE_RATES_BY_VERSION_AND_SAMPLE_RATE_INDEX[versionBits]
+  return _mp3SampleRatesByVersionAndSampleRateIndex[versionBits]
           ?[sampleRateIndex] ??
       0;
 }
@@ -52,7 +52,7 @@ int _getAacSampleRate(Uint8List bytes, int offset) {
 
   int sampleRateIndex = (bytes[offset + 2] >> 2) & 0x0F;
 
-  int sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[sampleRateIndex];
+  int sampleRate = _aacSampleRatesBySampleRateIndex[sampleRateIndex];
 
   if (sampleRate == -1) {
     throw UnsupportedError('AAC custom sample rates are not yet supported');

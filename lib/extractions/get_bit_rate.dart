@@ -21,8 +21,8 @@ int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
     final sampleRate = _getMp3SampleRate(bytes, offset, encoding);
     final layerIndex = (bytes[offset + 1] >> 1) & 0x03;
     final coefficient =
-        _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX[
-                layerIndex]?[versionIndex] ??
+        _mp3SamplesPerFrameCoefficientByLayerAndVersionIndex[layerIndex]
+                ?[versionIndex] ??
             0;
     var bitRates = <int>[];
     int? currentOffset = offset;
@@ -33,7 +33,7 @@ int _getMp3BitRate(Uint8List bytes, int offset, EncodingType encoding) {
           ((coefficient * bitRate) / sampleRate).toInt();
       bitRates.add(bitRate);
       currentOffset = bytes._indexOfSequence(
-          _MP3_MPEG_HEADER_SEQUENCE, currentOffset + frameSizeWithoutPadding);
+          _mp3MpegHeaderSequence, currentOffset + frameSizeWithoutPadding);
     }
 
     if (bitRates.isEmpty) {
@@ -54,8 +54,8 @@ int _getMp3BitRateAtFrameOffset(Uint8List bytes, int offset) {
   final mpegLayer = (bytes[offset + 1] >> 1) & 0x03;
   final bitrateIndex = (bytes[offset + 2] >> 4) & 0x0F;
 
-  return (_MP3_BITRATE_BY_BIT_INDEX_AND_VERSION_AND_LAYER[bitrateIndex]
-              ?[mpegVersion]?[mpegLayer] ??
+  return (_mp3BitrateByBitIndexAndVersionAndLayer[bitrateIndex]?[mpegVersion]
+              ?[mpegLayer] ??
           0) *
       1000;
 }
@@ -70,8 +70,7 @@ int _getWavBitRate(Uint8List bytes, int offset) {
 
 int _getOggBitRate(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.oggVorbis) {
-    final vorbisHeaderOffset =
-        bytes._indexOfSequence(_OGG_VORBIS_HEADER_SEQUENCE);
+    final vorbisHeaderOffset = bytes._indexOfSequence(_oggVorbisHeaderSequence);
 
     if (vorbisHeaderOffset == null) {
       return 0;
@@ -143,22 +142,30 @@ int _getAacBitRate(Uint8List bytes, int offset) {
         ((bytes[currentOffset + 4] & 0xFF) << 3) |
         ((bytes[currentOffset + 5] & 0xE0) >> 5);
 
-    final sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[
+    if (adtsFrameSize == 0) {
+      break;
+    }
+
+    final sampleRate = _aacSampleRatesBySampleRateIndex[
         (bytes[currentOffset + 2] >> 2) & 0x0F];
 
     if (sampleRate == -1) {
       // TODO implement sample rate extraction from ADTS header for variable sample rates
+      currentOffset = bytes._indexOfSequence(
+          _aacAdtsHeaderSequence, currentOffset + adtsFrameSize - 1);
       continue;
     }
 
     if (sampleRate == 0) {
+      currentOffset = bytes._indexOfSequence(
+          _aacAdtsHeaderSequence, currentOffset + adtsFrameSize - 1);
       continue;
     }
 
     final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
     bitrates.add(bitrate.toInt());
     currentOffset = bytes._indexOfSequence(
-        _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
+        _aacAdtsHeaderSequence, currentOffset + adtsFrameSize - 1);
   }
 
   if (bitrates.isEmpty) {

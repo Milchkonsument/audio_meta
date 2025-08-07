@@ -34,13 +34,11 @@ Duration _estimateMp3DurationFromFrames(
   final sampleRate = _getMp3SampleRate(bytes, offset, encoding);
   final layerIndex = (bytes[offset + 1] >> 1) & 0x03;
   final coefficient =
-      _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX[layerIndex]
+      _mp3SamplesPerFrameCoefficientByLayerAndVersionIndex[layerIndex]
               ?[versionIndex] ??
           0;
   final samplesPerFrame =
-      _MP3_SAMPLES_PER_FRAME_BY_LAYER_AND_VERSION_INDEX[layerIndex]
-              ?[versionIndex] ??
-          0;
+      _mp3SamplesPerFrameByLayerAndVersionIndex[layerIndex]?[versionIndex] ?? 0;
 
   int? currentOffset = offset;
   int dur = 0;
@@ -53,7 +51,7 @@ Duration _estimateMp3DurationFromFrames(
     dur += durationInMs;
 
     currentOffset = bytes._indexOfSequence(
-        _MP3_MPEG_HEADER_SEQUENCE, currentOffset + frameSizeWithoutPadding);
+        _mp3MpegHeaderSequence, currentOffset + frameSizeWithoutPadding);
   }
 
   return Duration(milliseconds: dur);
@@ -77,7 +75,7 @@ Duration _getWavDuration(Uint8List bytes, int offset) {
 
 Duration _getOggDuration(Uint8List bytes, int offset, EncodingType encoding) {
   if (encoding == EncodingType.oggFlac) {
-    final flacOffset = bytes._indexOfSequence(_FLAC_HEADER_SEQUENCE, offset);
+    final flacOffset = bytes._indexOfSequence(_flacHeaderSequence, offset);
     if (flacOffset == null) return Duration.zero;
     return _getFlacDuration(bytes, flacOffset);
   }
@@ -118,7 +116,7 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
         ((bytes[currentOffset + 5] & 0xE0) >> 5);
     final aacContentSizeBytes = adtsFrameSize - adtsFrameHeaderSizeInBytes;
 
-    final sampleRate = _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX[
+    final sampleRate = _aacSampleRatesBySampleRateIndex[
         (bytes[currentOffset + 2] >> 2) & 0x0F];
 
     if (sampleRate == -1) {
@@ -133,7 +131,7 @@ Duration _getAacDuration(Uint8List bytes, int offset, EncodingType encoding) {
     final bitrate = (adtsFrameSize * 8 * sampleRate) / 1024;
     milliseconds += (aacContentSizeBytes * 8 / bitrate * 1000).toInt();
     currentOffset = bytes._indexOfSequence(
-        _AAC_ADTS_HEADER_SEQUENCE, currentOffset + adtsFrameSize - 1);
+        _aacAdtsHeaderSequence, currentOffset + adtsFrameSize - 1);
   }
 
   return Duration(milliseconds: milliseconds);

@@ -1,15 +1,13 @@
-// ignore_for_file: constant_identifier_names
-
 part of 'audio_meta.dart';
 
 /// 'fmt '
-const _WAV_HEADER_SEQUENCE = [0x66, 0x6d, 0x74, 0x20];
+const _wavHeaderSequence = [0x66, 0x6d, 0x74, 0x20];
 
 /// '`0x1`vorbis'
-const _OGG_VORBIS_HEADER_SEQUENCE = [0x01, 0x76, 0x6f, 0x72, 0x62, 0x69, 0x73];
+const _oggVorbisHeaderSequence = [0x01, 0x76, 0x6f, 0x72, 0x62, 0x69, 0x73];
 
 /// OpusHead
-const _OGG_OPUS_HEADER_SEQUENCE = [
+const _oggOpusHeaderSequence = [
   0x4F,
   0x70,
   0x75,
@@ -21,7 +19,7 @@ const _OGG_OPUS_HEADER_SEQUENCE = [
 ];
 
 /// 'fLaC`0x00000022`'
-const _OGG_FLAC_HEADER_SEQUENCE = [
+const _oggFlacHeaderSequence = [
   0x66,
   0x4C,
   0x61,
@@ -33,21 +31,21 @@ const _OGG_FLAC_HEADER_SEQUENCE = [
 ];
 
 /// 'fLaC'
-const _FLAC_HEADER_SEQUENCE = [0x66, 0x4c, 0x61, 0x43];
+const _flacHeaderSequence = [0x66, 0x4c, 0x61, 0x43];
 
 /// 'ADIF'
-const _AAC_ADIF_HEADER_SEQUENCE = [0x41, 0x44, 0x49, 0x46];
+const _aacAdifHeaderSequence = [0x41, 0x44, 0x49, 0x46];
 
 /// 0b11111111
-const _AAC_ADTS_HEADER_SEQUENCE = [0xFF];
+const _aacAdtsHeaderSequence = [0xFF];
 
 /// 0b11111111111
-const _MP3_MPEG_HEADER_SEQUENCE = [0xFF];
+const _mp3MpegHeaderSequence = [0xFF];
 
 /// 'Xing'
-const _MP3_XING_HEADER_SEQUENCE = [0x58, 0x69, 0x6E, 0x67];
+const _mp3XingHeaderSequence = [0x58, 0x69, 0x6E, 0x67];
 
-const _WAV_FORMAT_CODES = {
+const _wavFormatCodes = {
   0x0001: EncodingType.wavPcm,
   0x0003: EncodingType.wavIeee,
   0x0006: EncodingType.wavAlaw,
@@ -63,7 +61,7 @@ const _WAV_FORMAT_CODES = {
 /// 01 - reserved
 /// 10 - MPEG Version 2 (ISO/IEC 13818-3)
 /// 11 - MPEG Version 1 (ISO/IEC 11172-3)
-const _MP3_SAMPLE_RATES_BY_VERSION_AND_SAMPLE_RATE_INDEX = {
+const _mp3SampleRatesByVersionAndSampleRateIndex = {
   // MPEG-1
   3: [
     44100,
@@ -94,7 +92,7 @@ const _MP3_SAMPLE_RATES_BY_VERSION_AND_SAMPLE_RATE_INDEX = {
 };
 
 const Map<int, Map<int, Map<int, int>>>
-    _MP3_BITRATE_BY_BIT_INDEX_AND_VERSION_AND_LAYER = {
+    _mp3BitrateByBitIndexAndVersionAndLayer = {
   0x0: {
     0: {3: 0, 2: 0, 1: 0},
     2: {3: 0, 2: 0, 1: 0},
@@ -182,7 +180,7 @@ const Map<int, Map<int, Map<int, int>>>
 /// Returns the sample rate for each sample rate index in the ADTS header.
 ///
 /// Returns -1 if the sample rate is written explicitly in the ADTS header.
-const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
+const _aacSampleRatesBySampleRateIndex = [
   96000,
   88200,
   64000,
@@ -202,7 +200,7 @@ const _AAC_SAMPLE_RATES_BY_SAMPLE_RATE_INDEX = [
   -1,
 ];
 
-const _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX = {
+const _mp3SamplesPerFrameCoefficientByLayerAndVersionIndex = {
   3: {
     // Layer I
     3: 48, // MPEG-1: 384 / 8
@@ -223,7 +221,7 @@ const _MP3_SAMPLES_PER_FRAME_COEFFICIENT_BY_LAYER_AND_VERSION_INDEX = {
   },
 };
 
-const _MP3_SAMPLES_PER_FRAME_BY_LAYER_AND_VERSION_INDEX = {
+const _mp3SamplesPerFrameByLayerAndVersionIndex = {
   3: {
     // Layer I
     3: 384, // MPEG-1

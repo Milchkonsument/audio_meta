@@ -35,3 +35,7 @@
 ## 1.2.0
 - added OPUS / OGG OPUS support
 - fixed bug where AAC extraction would be stuck indefinitely
+
+## 1.2.1
+- fixed AAC bitrate extraction bug for erroneous headers
+- formatting fixes

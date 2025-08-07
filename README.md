@@ -6,10 +6,10 @@
 
 <a href="https://www.paypal.com/donate/?hosted_button_id=T4TYU28529KSL"><img src="https://raw.githubusercontent.com/andreostrovsky/donate-with-paypal/925c5a9e397363c6f7a477973fdeed485df5fdd9/blue.svg" height="38"/></a>&nbsp;<a href="https://ko-fi.com/S6S7SIR1N"><img src="https://ko-fi.com/img/githubbutton_sm.svg" height="38"/></a>
 
-## Important Notice
+## Notice
 > _This package DOES NOT extract audio metadata like ID3 tags (e.g. Label, Release Year). This package DOES extract information about the audio stream, like duration or bit rate._
 
-> ⚠️ _This package is still in EARLY, ACTIVE DEVELOPMENT and currently serves more as a preview. Do NOT use this in production yet. First stable, tested version will be 2.0.0. You have been warned._
+> ⚠️ _This package is still in ACTIVE DEVELOPMENT and currently serves more as a preview. First stable, thoroughly tested version will be 2.0.0. You have been warned._
 
 ## Content
 * 💯 100% cross-platform
@@ -26,8 +26,6 @@
 * ✅ flac
 * ✅ opus
 * 🚧 m4a
-* 🚧 wma
-* 🚧 mp4
 
 ### Metadata Available Through This Package:
 * 🔊 Track Duration
