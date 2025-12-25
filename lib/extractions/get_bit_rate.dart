@@ -150,7 +150,7 @@ int _getAacBitRate(Uint8List bytes, int offset) {
         (bytes[currentOffset + 2] >> 2) & 0x0F];
 
     if (sampleRate == -1) {
-      // TODO implement sample rate extraction from ADTS header for variable sample rates
+      // ! TODO implement sample rate extraction from ADTS header for variable sample rates
       currentOffset = bytes._indexOfSequence(
           _aacAdtsHeaderSequence, currentOffset + adtsFrameSize - 1);
       continue;

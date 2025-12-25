@@ -39,3 +39,9 @@
 ## 1.2.1
 - fixed AAC bitrate extraction bug for erroneous headers
 - formatting fixes
+
+## 2.0.0
+- removed factory ctors for web compat
+- removed deprecated source code
+- updated readme
+- fixed typos
