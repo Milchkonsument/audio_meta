@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:audio_meta/audio_meta.dart';
 
@@ -11,7 +12,7 @@ void main(List<String> arguments) {
 
     final timeSingle = DateTime.now();
     print('File: ${f.path}');
-    print(AudioMeta.fromFile(f));
+    print(AudioMeta(Uint8List.fromList(f.readAsBytesSync())));
     print(
         'Elapsed: ${DateTime.now().difference(timeSingle).inMilliseconds} ms\n');
   }
