@@ -45,3 +45,8 @@
 - removed deprecated source code
 - updated readme
 - fixed typos
+
+## 2.0.1
+- deps bump
+- updated readme
+
