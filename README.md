@@ -1,4 +1,3 @@
-### audio_meta: Leightweight Audio Information Extraction
 ![License](https://img.shields.io/github/license/Milchkonsument/audio_meta)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Milchkonsument/audio_meta)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Milchkonsument/audio_meta)

@@ -49,4 +49,5 @@
 ## 2.0.1
 - deps bump
 - updated readme
+- changed license from GPL to MIT
 

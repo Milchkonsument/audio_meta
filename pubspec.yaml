@@ -1,5 +1,5 @@
 name: audio_meta
-description: audio information extraction (duration, bitrate, sample rate, channels) from audio files
+description: audio stream information extraction (duration, bitrate, sample rate, channels) from files
 version: 2.0.1
 repo: https://github.com/Milchkonsument/audio_meta
 repository: https://github.com/Milchkonsument/audio_meta
